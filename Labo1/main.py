@@ -4,10 +4,7 @@ def loadGrid(file):
     f = open(file)
     res = []
     for line in f:
-        l = line.replace(" ", "0")
-        row_values = l.strip().split()
-        for i in range(len(row_values)):
-            row_values[i] =  int(row_values[i])
+        row_values = [int(x) if x else 0 for x in line.split('\t')]
         res.extend(row_values)
     return res
 
@@ -61,7 +58,6 @@ def parcours(grid, frontierSortMethod):
     while(len(frontier)!=0 and not done):
         currentNode = frontier.pop(0)
         path.append(currentNode)
-        #print(f'{currentNode}, {objective}')
         if(currentNode == objective):
             done = True
         else:
@@ -74,7 +70,4 @@ def parcours(grid, frontierSortMethod):
 
 grid = loadGrid("input/Ex1-1.txt")
 
-#print(getChilds(grid))
-
-
-print(parcours(grid, frontierSortWidth))
+#print(parcours(grid, frontierSortWidth))

@@ -1,4 +1,4 @@
-#node format : array with index = position, value = value
+#grid format : array with index = position, value = value
 
 def loadGrid(file):
     f = open(file)
@@ -52,10 +52,28 @@ def getChilds(node):
 
     return childs
 
+
+def calculateManhattan(grid):
+    return sum(abs((val-1)%3 - i%3) + abs((val-1)//3 - i//3) for i, val in enumerate(grid) if val)
+
+def calculateAStarDistance(node):
+    return node["cost"] + calculateManhattan(node["grid"])
+
+
+
 def frontierAddWidth(frontier, news):
     frontier.extend(news)
 
-def parcours(grid, frontierAddMethod):
+def frontierAddDepth(frontier, news):
+    frontier[:0] = news
+
+def frontierAddAStar(frontier, news):
+    frontier.extend(news)
+    frontier.sort(key=calculateAStarDistance)
+
+
+
+def explore(grid, frontierAddMethod):
     initialNode = createNode(grid, None, 0)
     finalNode = None
     objective = [1, 2, 3, 4, 5, 6, 7, 8, 0]
@@ -83,7 +101,6 @@ def parcours(grid, frontierAddMethod):
 
 
     #rebuild the path
-
     if(done):
         tmp = finalNode
         while(tmp != None):
@@ -96,6 +113,12 @@ def parcours(grid, frontierAddMethod):
     }
 
 
-grid = loadGrid("input/Ex1-1.txt")
+grid = loadGrid("input/Ex1-2.txt")
 
-print(parcours(grid, frontierAddWidth))
+widthResult = explore(grid, frontierAddWidth)
+#depthResult = explore(grid, frontierAddDepth)
+aStarResult = explore(grid, frontierAddAStar)
+
+print(widthResult)
+#print(depthResult)
+print(aStarResult)

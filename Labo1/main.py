@@ -1,3 +1,5 @@
+import time
+
 #grid format : array with index = position, value = value
 
 def loadGrid(file):
@@ -82,6 +84,9 @@ def explore(grid, frontierAddMethod):
     visited = set()
     path = []
     done = False
+
+    #start time measure
+    startDate = time.time()
     
     #iterate the algorithm
     while(len(frontier)!=0 and not done):
@@ -107,8 +112,12 @@ def explore(grid, frontierAddMethod):
             path.insert(0, tmp["grid"])
             tmp = tmp["parent"]
 
+    #end time measure
+    executionTime = time.time() - startDate
+
     return {
         "solution": done,
+        "execution_time": executionTime,
         "path": path
     }
 

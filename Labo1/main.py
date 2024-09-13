@@ -113,12 +113,12 @@ def explore(grid, frontierAddMethod):
     }
 
 
-grid = loadGrid("input/Ex1-2.txt")
+grid = loadGrid("input/Ex1-1.txt")
 
 widthResult = explore(grid, frontierAddWidth)
-#depthResult = explore(grid, frontierAddDepth)
+depthResult = explore(grid, frontierAddDepth)
 aStarResult = explore(grid, frontierAddAStar)
 
 print(widthResult)
-#print(depthResult)
+print(depthResult)
 print(aStarResult)

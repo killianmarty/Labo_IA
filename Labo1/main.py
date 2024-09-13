@@ -1,4 +1,4 @@
-#format index = position, value = value
+#node format : array with index = position, value = value
 
 def loadGrid(file):
     f = open(file)
@@ -8,66 +8,94 @@ def loadGrid(file):
         res.extend(row_values)
     return res
 
+def createNode(grid, parent, cost):
+    return {
+        "parent": parent,
+        "cost": cost,
+        "grid": grid
+    }
+
 def getChilds(node):
+    grid = node["grid"]
     childs = []
-    zeroIndex = node.index(0)
+    zeroIndex = grid.index(0)
 
     #if we can move the void square to the X, we add the new grid to childs list
     
     # X = left
     if(zeroIndex % 3 != 0):
-        tmp = node.copy()
+        tmp = grid.copy()
         tmp[zeroIndex] = tmp[zeroIndex-1]
         tmp[zeroIndex-1] = 0
-        childs.append(tmp)
+        childs.append(createNode(tmp, node, node["cost"] + 1))
     
     # X = top
     if(zeroIndex > 2):
-        tmp = node.copy()
+        tmp = grid.copy()
         tmp[zeroIndex] = tmp[zeroIndex-3]
         tmp[zeroIndex-3] = 0
-        childs.append(tmp)
+        childs.append(createNode(tmp, node, node["cost"] + 1))
 
     # X = right
     if((zeroIndex+1) % 3 != 0):
-        tmp = node.copy()
+        tmp = grid.copy()
         tmp[zeroIndex] = tmp[zeroIndex+1]
         tmp[zeroIndex+1] = 0
-        childs.append(tmp)
+        childs.append(createNode(tmp, node, node["cost"] + 1))
 
     # X = bottom
-    if(zeroIndex < 5):
-        tmp = node.copy()
+    if(zeroIndex < 6):
+        tmp = grid.copy()
         tmp[zeroIndex] = tmp[zeroIndex+3]
         tmp[zeroIndex+3] = 0
-        childs.append(tmp)
+        childs.append(createNode(tmp, node, node["cost"] + 1))
 
     return childs
 
-def frontierSortWidth(frontier, news):
-    new = frontier.copy()
-    new.extend(news)
-    return new
+def frontierAddWidth(frontier, news):
+    frontier.extend(news)
 
-def parcours(grid, frontierSortMethod):
+def parcours(grid, frontierAddMethod):
+    initialNode = createNode(grid, None, 0)
+    finalNode = None
     objective = [1, 2, 3, 4, 5, 6, 7, 8, 0]
-    frontier = [grid]
+
+    frontier = [initialNode]
+    visited = set()
     path = []
     done = False
     
+    #iterate the algorithm
     while(len(frontier)!=0 and not done):
         currentNode = frontier.pop(0)
-        path.append(currentNode)
-        if(currentNode == objective):
+        currentGrid = currentNode["grid"]
+
+        if(currentGrid == objective):
             done = True
+            finalNode = currentNode
         else:
-            frontier = frontierSortMethod(frontier, getChilds(currentNode))
+            visited.add(tuple(currentGrid)) #add the grid to the visited grids list
+
+            childs = getChilds(currentNode)
+            filteredChilds = [child for child in childs if tuple(child["grid"]) not in visited] #filter the childs to only keep unvisited nodes
+            
+            frontierAddMethod(frontier, filteredChilds)
+
+
+    #rebuild the path
+
+    if(done):
+        tmp = finalNode
+        while(tmp != None):
+            path.insert(0, tmp["grid"])
+            tmp = tmp["parent"]
 
     return {
-        "done": True,
+        "solution": done,
         "path": path
     }
 
+
 grid = loadGrid("input/Ex1-1.txt")
 
-#print(parcours(grid, frontierSortWidth))
+print(parcours(grid, frontierAddWidth))

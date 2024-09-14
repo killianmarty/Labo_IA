@@ -8,7 +8,19 @@ def loadGrid(file):
     for line in f:
         row_values = [int(x) if x else 0 for x in line.split('\t')]
         res.extend(row_values)
+    f.close()
     return res
+
+def saveOutput(output, file):
+    f = open(file, "w")
+    for i in range(len(output["frontierLengths"])):
+        frontierLength = output["frontierLengths"][i]
+        f.write(str(i+1) + '\t' + str(frontierLength)+'\n')
+    f.write(str(output["visitedStates"]) + '\n')
+    f.write(str(output["executionTime"]) + "s\n")
+    f.close()
+
+    print("Output data saved to " + file)
 
 def createNode(grid, parent, cost):
     return {
@@ -78,7 +90,7 @@ def frontierAddAStar(frontier, news):
 def explore(grid, frontierAddMethod):
     initialNode = createNode(grid, None, 0)
     finalNode = None
-    objective = [1, 2, 3, 4, 5, 6, 7, 8, 0]
+    target = [1, 2, 3, 4, 5, 6, 7, 8, 0]
 
     frontier = [initialNode]
     visited = set()
@@ -87,13 +99,18 @@ def explore(grid, frontierAddMethod):
 
     #start time measure
     startDate = time.time()
+
+    #track the frontier length
+    frontierLengthByIteration = []
     
     #iterate the algorithm
     while(len(frontier)!=0 and not done):
         currentNode = frontier.pop(0)
         currentGrid = currentNode["grid"]
 
-        if(currentGrid == objective):
+        frontierLengthByIteration.append(len(frontier))
+
+        if(currentGrid == target):
             done = True
             finalNode = currentNode
         else:
@@ -117,17 +134,45 @@ def explore(grid, frontierAddMethod):
 
     return {
         "solution": done,
-        "execution_time": executionTime,
+        "executionTime": executionTime,
+        "frontierLengths" : frontierLengthByIteration,
+        "visitedStates": len(visited),
         "path": path
     }
 
 
+
+
+### "Main" functions to test the 3 algorithms implementations
+
+def runWidthExploration(input, output):
+    print("Running Width exploration...")
+    grid = loadGrid(input)
+    result = explore(grid, frontierAddWidth)
+    print(result["path"])
+    saveOutput(result, output)
+
+def runDepthExploration(input, output):
+    print("Running Depth exploration...")
+    grid = loadGrid(input)
+    result = explore(grid, frontierAddDepth)
+    print(result["path"])
+    saveOutput(result, output)
+
+def runAStarExploration(input, output):
+    print("Running A* exploration...")
+    grid = loadGrid(input)
+    result = explore(grid, frontierAddAStar)
+    print(result["path"])
+    saveOutput(result, output)
+
 grid = loadGrid("input/Ex1-1.txt")
 
-widthResult = explore(grid, frontierAddWidth)
-depthResult = explore(grid, frontierAddDepth)
-aStarResult = explore(grid, frontierAddAStar)
 
-print(widthResult)
-print(depthResult)
-print(aStarResult)
+
+
+### CALLS
+filename = "input/Ex1-1.txt"
+runWidthExploration(filename, "output/width.txt")
+runDepthExploration(filename, "output/depth.txt")
+runAStarExploration(filename, "output/astar.txt")

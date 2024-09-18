@@ -22,11 +22,12 @@ def saveOutput(output, file):
 
     print("Output data saved to " + file)
 
-def createNode(grid, parent, cost):
+def createNode(grid, parent, cost, action):
     return {
         "parent": parent,
         "cost": cost,
-        "grid": grid
+        "grid": grid,
+        "action": action
     }
 
 def getChilds(node):
@@ -41,28 +42,28 @@ def getChilds(node):
         tmp = grid.copy()
         tmp[zeroIndex] = tmp[zeroIndex-1]
         tmp[zeroIndex-1] = 0
-        childs.append(createNode(tmp, node, node["cost"] + 1))
+        childs.append(createNode(tmp, node, node["cost"] + 1, "left"))
     
     # X = top
     if(zeroIndex > 2):
         tmp = grid.copy()
         tmp[zeroIndex] = tmp[zeroIndex-3]
         tmp[zeroIndex-3] = 0
-        childs.append(createNode(tmp, node, node["cost"] + 1))
+        childs.append(createNode(tmp, node, node["cost"] + 1, "top"))
 
     # X = right
     if((zeroIndex+1) % 3 != 0):
         tmp = grid.copy()
         tmp[zeroIndex] = tmp[zeroIndex+1]
         tmp[zeroIndex+1] = 0
-        childs.append(createNode(tmp, node, node["cost"] + 1))
+        childs.append(createNode(tmp, node, node["cost"] + 1, "right"))
 
     # X = bottom
     if(zeroIndex < 6):
         tmp = grid.copy()
         tmp[zeroIndex] = tmp[zeroIndex+3]
         tmp[zeroIndex+3] = 0
-        childs.append(createNode(tmp, node, node["cost"] + 1))
+        childs.append(createNode(tmp, node, node["cost"] + 1, "bottom"))
 
     return childs
 
@@ -88,7 +89,7 @@ def frontierAddAStar(frontier, news):
 
 
 def explore(grid, frontierAddMethod):
-    initialNode = createNode(grid, None, 0)
+    initialNode = createNode(grid, None, 0, None)
     finalNode = None
     target = [1, 2, 3, 4, 5, 6, 7, 8, 0]
 
@@ -126,7 +127,8 @@ def explore(grid, frontierAddMethod):
     if(done):
         tmp = finalNode
         while(tmp != None):
-            path.insert(0, tmp["grid"])
+            if(tmp["action"]!=None):
+                path.insert(0, tmp["action"])
             tmp = tmp["parent"]
 
     #end time measure
@@ -166,13 +168,10 @@ def runAStarExploration(input, output):
     print(result["path"])
     saveOutput(result, output)
 
-grid = loadGrid("input/Ex1-1.txt")
-
-
 
 
 ### CALLS
-filename = "input/Ex1-2.txt"
+filename = "input/Ex1-1.txt"
 runWidthExploration(filename, "output/width.txt")
 runDepthExploration(filename, "output/depth.txt")
 runAStarExploration(filename, "output/astar.txt")

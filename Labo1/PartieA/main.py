@@ -172,7 +172,7 @@ grid = loadGrid("input/Ex1-1.txt")
 
 
 ### CALLS
-filename = "input/Ex1-1.txt"
+filename = "input/Ex1-2.txt"
 runWidthExploration(filename, "output/width.txt")
 runDepthExploration(filename, "output/depth.txt")
 runAStarExploration(filename, "output/astar.txt")

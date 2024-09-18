@@ -45,3 +45,24 @@ Enfin, j'ai crée des fonctions principales pour chaque algorithme de recherche 
 Ma première observation, est que l'algorithme A* est le plus rapide, suivi par le parcours en largeur.
 
 En revanche, l'exécution du parcours en profondeur est significativement plus longue et retourne un chemin bien plus long.
+
+
+### Algorithmes gloutons
+
+#### Definition du problème
+
+Un état est l'ensemble des tâches exécutées, des tâches retantes, et du temps actuel.
+
+L'état initial est un état où l'ensemble des tâches éxecutées est vide, l'ensemble des tâches restantes est l'ensemble des tâches de l'input, et le temps actuel est 0.
+
+L'état final est l'ensemble des états dont toutes les tâches sont éxecutées avant expiration.
+
+La fonction de successeur est l'ajout d'une nouvelle tâche à l'ensemble des tâches exécutées.
+
+Le coût de chemin est la date de fin d'éxecution de la tâche.
+
+#### Heuristiques possibles
+
+1. Durée de la tâche (Di - Si)
+2. Temps d'arrivée (Si)
+3. Délai (Di)

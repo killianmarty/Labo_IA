@@ -28,7 +28,7 @@ Est représentée comme ceci en Python :
 [7, 2, 4, 5, 0, 6, 8, 3, 1]
 ```
 
-Ensuite j'ai également utilisé une structure de "noeud" qui contient le parent direct, le coût, et la grille.
+Ensuite j'ai également utilisé une structure de "noeud" qui contient le parent direct, le coût, la grille, et l'action réalisée pour l'atteindre.
 
 #### Implémentation
 
@@ -39,10 +39,6 @@ Cette fonction reprend l'algorithme vu en cours, en ajoutant une vérification a
 Une fois l'état objectif atteint, la fonction "explore" reconstruit le chemin de la solution en remontant les parents depuis l'état final, et retourne la solution.
 
 Enfin, j'ai crée des fonctions principales pour chaque algorithme de recherche (Largeur, Profondeur, A*) qui se chargent de charger la grille depuis le fichier, appeller la fonction "explore" avec les bons paramètres, afficher le chemin final, et écrire le résultat d'exécution dans un fichier.
-
-#### Difficultés rencontrées
-
-La grille de départ du fichier Ex1-2.txt, est très longue à trouver la solution (si il y en une), aucune exécution n'est venue à bout du puzzle. J'en déduis qu'il n'admet pas de solution (confirmé par des sites qui ont l'air d'avoir une exécution infinie comme moi) ou qu'il y a une erreur dans mon code.
 
 #### Observations
 

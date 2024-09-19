@@ -1,4 +1,5 @@
 from functools import cmp_to_key
+import copy
 
 ##CLASSES FOR DATA REPRESENTATION
 class Task:
@@ -60,7 +61,7 @@ def maxHeuristic(task):
 
 
 #CALLS
-inputState = loadData("input/Ex2-1.txt")
+inputState = loadData("input/Ex2-2.txt")
 
 resultStartDate = explore(inputState, startDateHeuristic)
 resultEndDate = explore(inputState, endDateHeuristic)
@@ -71,3 +72,47 @@ print(resultStartDate)
 print(resultEndDate)
 print(resultDuration)
 print(resultMax)
+
+
+
+def AStarHeuristic(currentNode):
+    return currentNode[2] + len(currentNode[1])
+
+def AStar(inputState):
+    currentNode = [[], inputState, 0]
+    taskNumber = len(inputState)
+
+    frontier = [currentNode]
+    visited = []
+
+    while(len(currentNode[1]) != 0 and len(frontier) != 0):
+        currentNode = frontier.pop(0)
+        visited.append(currentNode)
+
+        childs = getChilds(currentNode)
+        for child in childs:
+            if(not child in visited):
+                frontier.append(child)
+        frontier.sort(key=cmp_to_key(lambda item1, item2: AStarHeuristic(item1) - AStarHeuristic(item2)))
+
+    return currentNode
+
+
+def getChilds(currentNode):
+    
+    childs = []
+
+    for task in currentNode[1]:
+        if(currentNode[2] <= task.startDate):
+            #we add the child
+            nodeCopy = currentNode.copy()
+            nodeCopy[0].append(task)
+            nodeCopy[1].remove(task)
+            nodeCopy[2] += (task.endDate - task.startDate)
+
+            childs.append(nodeCopy)
+
+    return childs
+
+
+print(AStar(inputState))

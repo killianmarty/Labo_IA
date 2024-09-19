@@ -53,11 +53,11 @@ En revanche, l'exécution du parcours en profondeur est significativement plus l
 
 Un état est l'ensemble des tâches exécutées, des tâches retantes, et du temps actuel.
 
-L'état initial est un état où l'ensemble des tâches éxecutées est vide, l'ensemble des tâches restantes est l'ensemble des tâches de l'input, et le temps actuel est 0.
+L'état initial est un état où l'ensemble des tâches exécutées est vide, l'ensemble des tâches restantes est l'ensemble des tâches de l'input, et le temps actuel est 0.
 
-L'état final est l'ensemble des états dont toutes les tâches sont éxecutées avant expiration.
+L'état objectif est l'ensemble des états dont toutes les tâches sont exécutées avant expiration.
 
-La fonction de successeur est l'ajout d'une nouvelle tâche à l'ensemble des tâches exécutées.
+La fonction de successeur est l'ajout d'une nouvelle tâche à l'ensemble des tâches exécutées, le retrait de celle-ci de l'ensemble des tâches restantes et la mise à jour du temps actuel.
 
 Le coût de chemin est la date de fin d'éxecution de la tâche.
 
@@ -66,3 +66,13 @@ Le coût de chemin est la date de fin d'éxecution de la tâche.
 1. Durée de la tâche (Di - Si)
 2. Temps d'arrivée (Si)
 3. Délai (Di)
+
+#### Heuristique possible pour A*
+
+Le nombre de tâches restantes à exécuter est une heuristique possible pour A*, car cette heuristique ne surestime pas le coût étant donné que le la durée d'une tâche est supérieure ou égale à 1.
+
+#### Analyse de l'applicabilité dans la vie réelle
+
+Les résultats avec A* ne permettent pas d'exécuter toutes les tâches avec les inputs fournis, tout comme les algorithmes gloutons. Ainsi, il n'est pas nécéssaire d'utiliser des ressources pour exécuter un algorithme de type A* alors qu'un algorithme glouton peut donner un résultat similaire en utilisant moins de ressources.
+
+Cette hypothèse est d'autant plus vraie que dans la vie réelle, le nombre de tâches à exécuter est bien plus grand que dans les inputs et les "conflits" sont donc plus fréquents.

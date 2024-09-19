@@ -8,28 +8,10 @@ class Task:
         self.endDate = endDate
 
     def __str__(self) -> str:
-        return "[" + str(self.id) + ", " + str(self.startDate) + ", " + str(self.endDate) + "]"
+        return "(" + str(self.id) + ", " + str(self.startDate) + ", " + str(self.endDate) + ")"
 
     def __repr__(self):
         return self.__str__()
-
-class State:
-    def __init__(self, executed, pending, currentDate) -> None:
-        self.executed = executed
-        self.pending = pending
-        self.currentDate = currentDate
-
-    def sort(self, heuristic):
-        self.pending = sorted(self.pending, key=cmp_to_key(lambda item1, item2: heuristic(item1) - heuristic(item2)))
-
-    def executeTask(self, task):
-        self.currentDate = task.endDate
-        self.executed.append(task)
-        self.pending.remove(task)
-
-    def __str__(self) -> str:
-        return "(" + str(self.executed) + ", " + str(self.pending) + ", " + str(self.currentDate) + ")"
-
 
 #MAIN FUNCTIONS
 def loadData(inputFile):
@@ -44,18 +26,24 @@ def loadData(inputFile):
         newTask = Task(int(split[0]), int(split[1]), int(split[2]))
         pendingTasks.append(newTask)
 
-    return State([], pendingTasks, 0)
+    return pendingTasks
 
 def explore(initalState, heuristic):
-    state = initalState
-    while(len(state.pending)!=0):
-        state.sort(heuristic)
-        state.executeTask(state.pending[0])
+    executedTasks = []
+    pendingTasks = initalState.copy()
+    currentTime = 0
 
-        print(state)
+    #Sort with heuristic
+    pendingTasks.sort(key=cmp_to_key(lambda item1, item2: heuristic(item1) - heuristic(item2)))
+    
+    #Execute the tasks if possible
+    for task in pendingTasks:
+        if(task.startDate >= currentTime):
+            executedTasks.append(task)
+            pendingTasks.remove(task)
+            currentTime += task.endDate - task.startDate
 
-    return state
-
+    return (executedTasks, pendingTasks, currentTime)
 
 #HEURISTICS
 def startDateHeuristic(task):
@@ -67,7 +55,19 @@ def endDateHeuristic(task):
 def durationHeuristic(task):
     return task.endDate - task.startDate
 
+def maxHeuristic(task):
+    return max(startDateHeuristic(task), endDateHeuristic(task), durationHeuristic(task))
+
 
 #CALLS
-inputState = loadData("input/Ex2-3.txt")
-result = explore(inputState, endDateHeuristic)
+inputState = loadData("input/Ex2-1.txt")
+
+resultStartDate = explore(inputState, startDateHeuristic)
+resultEndDate = explore(inputState, endDateHeuristic)
+resultDuration = explore(inputState, durationHeuristic)
+resultMax = explore(inputState, maxHeuristic)
+
+print(resultStartDate)
+print(resultEndDate)
+print(resultDuration)
+print(resultMax)

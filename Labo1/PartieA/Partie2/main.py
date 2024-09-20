@@ -1,6 +1,8 @@
 from functools import cmp_to_key
 import copy
 
+#State (also Node here) structure : State(executed, pending, currentTime) with executed, pending = arrays of "Task"
+
 ##CLASSES FOR DATA REPRESENTATION
 class Task:
     def __init__(self, id, startDate, endDate) -> None:
@@ -14,7 +16,19 @@ class Task:
     def __repr__(self):
         return self.__str__()
 
-#MAIN FUNCTIONS
+class State:
+    def __init__(self, executed, pending, currentTime) -> None:
+        self.executed = executed
+        self.pending = pending
+        self.currentTime = currentTime
+
+    def __str__(self) -> str:
+        return "{executed: " + str(self.executed) + ", pending: " + str(self.pending) + ", currentTime: " + str(self.currentTime) + "}"
+
+    def __repr__(self):
+        return self.__str__()
+
+#Loading function
 def loadData(inputFile):
     f = open(inputFile, 'r')
     lines = f.readlines()
@@ -27,26 +41,16 @@ def loadData(inputFile):
         newTask = Task(int(split[0]), int(split[1]), int(split[2]))
         pendingTasks.append(newTask)
 
-    return pendingTasks
+    return State([], pendingTasks, 0)
 
-def explore(initalState, heuristic):
-    executedTasks = []
-    pendingTasks = initalState.copy()
-    currentTime = 0
 
-    #Sort with heuristic
-    pendingTasks.sort(key=cmp_to_key(lambda item1, item2: heuristic(item1) - heuristic(item2)))
-    
-    #Execute the tasks if possible
-    for task in pendingTasks:
-        if(task.startDate >= currentTime):
-            executedTasks.append(task)
-            pendingTasks.remove(task)
-            currentTime += task.endDate - task.startDate
 
-    return (executedTasks, pendingTasks, currentTime)
+##############################
+## GREEDY ALGORITHM SECTION ##
+##############################
 
-#HEURISTICS
+
+#Greedy heuristics
 def startDateHeuristic(task):
     return task.startDate
 
@@ -56,72 +60,103 @@ def endDateHeuristic(task):
 def durationHeuristic(task):
     return task.endDate - task.startDate
 
-def maxHeuristic(task):
-    return max(startDateHeuristic(task), endDateHeuristic(task), durationHeuristic(task))
 
 
-#CALLS
-inputState = loadData("input/Ex2-1.txt")
+def greedy(initalState, heuristic):
+    state = copy.deepcopy(initalState)
 
-resultStartDate = explore(inputState, startDateHeuristic)
-resultEndDate = explore(inputState, endDateHeuristic)
-resultDuration = explore(inputState, durationHeuristic)
-resultMax = explore(inputState, maxHeuristic)
+    #Sort with heuristic
+    state.pending.sort(key=cmp_to_key(lambda item1, item2: heuristic(item1) - heuristic(item2)))
+    
+    #Execute the tasks if possible
+    for task in state.pending:
+        if(task.startDate >= state.currentTime):
+            state.executed.append(task)
+            state.pending.remove(task)
+            state.currentTime += task.endDate - task.startDate
 
-print(resultStartDate)
-print(resultEndDate)
-print(resultDuration)
-print(resultMax)
+    return state
 
-print("----------")
 
-### A STAR IMPLEMENTATION
 
-#Node structure : [executed, pending, currentTime] with executed, pending = arrays of "Task"
+####################
+## A STAR SECTION ##
+####################
 
-#function to calculate cost + heuristic for A*
-def AStarHeuristic(currentNode):
-    return currentNode[2] + len(currentNode[1])
+#Function to calculate cost + heuristic for A*
+def AStarHeuristic(currentState):
+    return currentState.currentTime + len(currentState.pending)
+
+#Function to get childs of a node in the tree
+def getChilds(currentState):
+    childs = []
+
+    for i in range(len(currentState.pending)):
+        task = currentState.pending[i]
+        if(currentState.currentTime <= task.startDate):
+
+            #Create a child
+            stateCopy = copy.deepcopy(currentState)
+            stateCopy.executed.append(task)
+            stateCopy.pending.pop(i)
+            stateCopy.currentTime += (task.endDate - task.startDate)
+
+            childs.append(stateCopy)
+
+    return childs
+
+
 
 def AStar(inputState):
-    currentNode = [[], inputState, 0]
-    taskNumber = len(inputState)
+    currentState = copy.deepcopy(inputState)
 
-    frontier = [currentNode]
+    frontier = [currentState]
     visited = []
 
-    while(len(currentNode[1]) != 0 and len(frontier) != 0):
-        currentNode = frontier.pop(0)
-        visited.append(currentNode)
+    while(len(currentState.pending) != 0 and len(frontier) != 0):
+        currentState = frontier.pop(0)
+        visited.append(currentState)
         
-        childs = getChilds(currentNode)
+        childs = getChilds(currentState)
         for child in childs:
             if(not child in visited):
                 frontier.append(child)
 
         frontier.sort(key=cmp_to_key(lambda item1, item2: AStarHeuristic(item1) - AStarHeuristic(item2)))
 
-    solved = (len(currentNode[1]) == 0)
-    return {"finalNode" :currentNode, "solved" : solved}
 
 
-def getChilds(currentNode):
-    
-    childs = []
+    solved = (len(currentState.pending) == 0)
 
-    for i in range(len(currentNode[1])):
-        task = currentNode[1][i]
-        if(currentNode[2] <= task.startDate):
-
-            #we create a child
-            nodeCopy = copy.deepcopy(currentNode)
-            nodeCopy[0].append(task)
-            nodeCopy[1].pop(i)
-            nodeCopy[2] += (task.endDate - task.startDate)
-
-            childs.append(nodeCopy)
-
-    return childs
+    return {
+        "finalNode": currentState,
+        "solved": solved
+    }
 
 
+
+###########
+## CALLS ##
+###########
+
+src = "input/Ex2-1.txt"
+
+print("Loading data from " + src)
+inputState = loadData("input/Ex2-1.txt")
+
+#Greedy algorithm calls
+print("\nResolut of greedy algoritm with start date heuristic :")
+resultStartDate = greedy(inputState, startDateHeuristic)
+print(resultStartDate)
+
+print("\nResolut of greedy algoritm with end date heuristic :")
+resultEndDate = greedy(inputState, endDateHeuristic)
+print(resultEndDate)
+
+print("\nResolut of greedy algoritm with duration heuristic :")
+resultDuration = greedy(inputState, durationHeuristic)
+print(resultDuration)
+
+#A* call
+print("\nResolut of A* algorithm :")
 print(AStar(inputState))

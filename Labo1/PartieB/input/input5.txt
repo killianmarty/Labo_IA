@@ -1,0 +1,20 @@
+..34.8...
+..6...3..
+.7..2.1..
+1..5.....
+...87..6.
+.826..7.1
+....4....
+.....5..6
+...7..423
+
+Number of Givens: 25
+Number of Singles: 40
+Number of Hidden Singles: 16
+Number of Naked Pairs: 0
+Number of Hidden Pairs: 0
+Number of Pointing Pairs/Triples: 0
+Number of Box/Line Intersections: 0
+Number of Guesses: 0
+Number of Backtracks: 0
+Difficulty: Easy

@@ -73,7 +73,7 @@ def greedy(initalState, heuristic):
         if(task.startDate >= state.currentTime):
             state.executed.append(task)
             state.pending.remove(task)
-            state.currentTime += task.endDate - task.startDate
+            state.currentTime = task.endDate
 
     return state
 
@@ -99,7 +99,7 @@ def getChilds(currentState):
             stateCopy = copy.deepcopy(currentState)
             stateCopy.executed.append(task)
             stateCopy.pending.pop(i)
-            stateCopy.currentTime += (task.endDate - task.startDate)
+            stateCopy.currentTime = task.endDate
 
             childs.append(stateCopy)
 

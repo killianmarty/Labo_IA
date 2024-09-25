@@ -55,7 +55,7 @@ Un état est l'ensemble des tâches exécutées, des tâches retantes, et du tem
 
 L'état initial est un état où l'ensemble des tâches exécutées est vide, l'ensemble des tâches restantes est l'ensemble des tâches de l'input, et le temps actuel est 0.
 
-L'état objectif est l'ensemble des états dont toutes les tâches sont exécutées avant expiration.
+L'état objectif est un état dans lequel on exécute le maximum de tâches.
 
 La fonction de successeur est l'ajout d'une nouvelle tâche à l'ensemble des tâches exécutées, le retrait de celle-ci de l'ensemble des tâches restantes et la mise à jour du temps actuel.
 

@@ -45,6 +45,7 @@ def fillInitialGrid(grid):
                 unset.remove(val)
         for col in range(9):
             if(not isFixed(col, row)):
+                rand = random.randint(0, len(unset)-1)
                 grid[row][col] = unset[0]
                 unset.pop(0)
     
@@ -68,51 +69,63 @@ def swap(grid, x1, y1, x2, y2):
 
 
 def getNeighbor(grid):
+    #we choose a random row, and we find the best pair of x1 and x2 to swap
     tmp = copy.deepcopy(grid)
 
     row = random.randint(0,8)
-    fixed=True
-    x1=0
-    x2=0
-    while(fixed):
-        x1 = random.randint(0,8)
-        x2 = random.randint(0,8)
-        fixed = isFixed(x1, row) or isFixed(x2, row)
+    bestx1=0
+    bestx2=0
+    bestHeuristic = 999
+    for x1 in range(9):
+        for x2 in range(x1, 9):
+            if(isFixed(x1, row) or isFixed(x2, row)):
+                continue
 
-    swap(tmp, x1, row, x2, row)
+            swap(tmp, x1, row, x2, row)
+            newHeuristic = heuristic(tmp)
+            swap(tmp, x1, row, x2, row)
+
+            #TODO <= or < ?
+            if(newHeuristic <= bestHeuristic):
+                bestHeuristic = newHeuristic
+                bestx1 = x1
+                bestx2 = x2
+                bestrow = row
+
+    swap(tmp, bestx1, row, bestx2, row)
 
     return tmp
 
 
 def HillClimb(grid):
     
-    max_iter = 100000
+    max_iter = 100
     
     while(True):
         i=0
         currentGrid = fillInitialGrid(grid)
-        currentConflicts = heuristic(grid)
+        currentHeuristic = heuristic(grid)
 
         #round of guessing, we consider its stuck if the heuristic does not improve in max_iter iterations
-        while(i < max_iter):
+        while(i < max_iter * 10/currentHeuristic):
 
             newGrid = getNeighbor(currentGrid)
-            newConflicts = heuristic(newGrid)
+            newHeuristic = heuristic(newGrid)
 
             #if solution, we return it
-            if(newConflicts == 0):
+            if(newHeuristic == 0):
                 return newGrid
             
             #if the neighbor is better, it becomes the new grid
-            if(newConflicts < currentConflicts):
+            if(newHeuristic < currentHeuristic):
                 i=0
                 currentGrid = newGrid
-                currentConflicts = newConflicts
-                print(newConflicts)
+                currentHeuristic = newHeuristic
+                print(newHeuristic)
 
             i+=1
 
 
-initialGrid = loadGrid("input/input6.txt")
+initialGrid = loadGrid("input/input5.txt")
 result = HillClimb(initialGrid)
-print(result)
+printgrid(result)

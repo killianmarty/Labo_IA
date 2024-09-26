@@ -1,6 +1,5 @@
 import random
 import copy
-import time
 
 def loadGrid(src):
     matrix=[]
@@ -106,7 +105,7 @@ def getNeighbor(grid):
 
 def HillClimb(grid):
     
-    max_iter = 250
+    max_iter = 100
     
     while(True):
         i=0
@@ -126,19 +125,16 @@ def HillClimb(grid):
             
             #if the neighbor is better, it becomes the new grid
             if(newHeuristic < currentHeuristic):
-
+                i=0
                 currentGrid = newGrid
                 currentHeuristic = newHeuristic
+
+                #print(currentHeuristic)
                 
 
             i+=1
 
 
-initialGrid = loadGrid("./input/input10.txt")
-
-startDate = time.time()
+initialGrid = loadGrid("./input/input5.txt")
 result = HillClimb(initialGrid)
-executionTime = time.time() - startDate
-
 printgrid(result)
-print(executionTime)

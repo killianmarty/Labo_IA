@@ -1,0 +1,30 @@
+6.1....5.
+.9..5..61
+5...4.8.9
+8.....2..
+...2....8
+2......45
+....3..24
+3.5...6..
+...4..5..
+
+Number of Givens: 24
+Number of Singles: 36
+Number of Hidden Singles: 21
+Number of Naked Pairs: 0
+Number of Hidden Pairs: 0
+Number of Pointing Pairs/Triples: 0
+Number of Box/Line Intersections: 0
+Number of Guesses: 0
+Number of Backtracks: 0
+Difficulty: Easy
+
+681973452
+794852361
+532641879
+859714236
+473265198
+216398745
+168537924
+345129687
+927486513

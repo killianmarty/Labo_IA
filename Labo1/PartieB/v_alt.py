@@ -19,7 +19,8 @@ def heuristic(grid):
 
     conflicts = 0
     # Row: No need to count conficts on rows because the elements are unique on rows
-
+    for i in range(9):
+        conflicts += len(set(grid[i])) - 9
     # Column
     for j in range(9):
         col = [grid[i][j] for i in range(9)]
@@ -35,28 +36,6 @@ def heuristic(grid):
 
     return -conflicts
 
-
-def fillInitialGrid(grid):
-    #This function fills the free boxes in each row with numbers
-
-    grid = copy.deepcopy(grid)
-    for row in range(9):
-
-        availableNumbers = list(range(1, 10))
-        
-        #Randomize the order of the numbers
-        random.shuffle(availableNumbers)
-
-        for val in grid[row]:
-            if(val!=0):
-                availableNumbers.remove(val)
-
-        for col in range(9):
-            if(not isFixed(col, row)):
-                grid[row][col] = availableNumbers[0]
-                availableNumbers.pop(0)
-    
-    return grid
 
 def printgrid(grid):
     for line in grid:
@@ -76,42 +55,44 @@ def swap(grid, x1, y1, x2, y2):
 
 
 def getNeighbor(grid):
-    #we choose a random row, and we find the best pair of x1 and x2 to swap
-    tmp = copy.deepcopy(grid)
+    
 
-    row = random.randint(0,8)
-    bestx1=None
-    bestx2=None
+    randX = random.randint(0, 8)
+    randY = random.randint(0, 8)
+    while(isFixed(randX, randY)):
+        randX = random.randint(0, 8)
+        randY = random.randint(0, 8)
+
+    bestValue = None
     bestHeuristic = float('inf')
+    for i in range(1, 10):
+        tmp = copy.deepcopy(grid)
+        tmp[randY][randX] = i
+        tmpHeuristic = heuristic(tmp)
+        if(tmpHeuristic < bestHeuristic):
+            bestValue = i
+            bestHeuristic = tmpHeuristic
 
-    for x1 in range(9):
-        for x2 in range(x1, 9):
-            if((isFixed(x1, row) or isFixed(x2, row))):
-                continue
-
-            swap(tmp, x1, row, x2, row)
-            newHeuristic = heuristic(tmp)
-            swap(tmp, x1, row, x2, row)
-
-            #TODO <= or < ?
-            if(newHeuristic < bestHeuristic):
-                bestHeuristic = newHeuristic
-                bestx1 = x1
-                bestx2 = x2
-
-    swap(tmp, bestx1, row, bestx2, row)
-
+    tmp = copy.deepcopy(grid)
+    tmp[randY][randX] = bestValue
     return tmp
 
+def countZeros(grid):
+    c=0
+    for i in range(9):
+        for j in range(9):
+            if(grid[i][j]==0):
+                c+=1
+    return c
 
 def HillClimb(grid):
     
-    max_iter = 250
+    max_iter = 2000
     
     while(True):
         i=0
-        currentGrid = fillInitialGrid(grid)
-        currentHeuristic = heuristic(grid)
+        currentGrid = copy.deepcopy(grid)
+        currentHeuristic = heuristic(currentGrid)
         
 
         #round of guessing, we consider its stuck if the heuristic does not improve in max_iter iterations
@@ -122,23 +103,25 @@ def HillClimb(grid):
 
             #if solution, we return it
             if(newHeuristic == 0):
-                return newGrid
+                if(countZeros(newGrid)==0):
+                    return newGrid
             
             #if the neighbor is better, it becomes the new grid
-            if(newHeuristic < currentHeuristic):
-
-                currentGrid = newGrid
-                currentHeuristic = newHeuristic
+            if(newHeuristic <= currentHeuristic):
                 
+                if(newHeuristic != currentHeuristic):
+                    i=0 #restart counter
+                    #print(currentHeuristic)
+                    
+                currentGrid = newGrid
+                currentHeuristic = newHeuristic  
 
             i+=1
 
 
 initialGrid = loadGrid("./input/input10.txt")
-
 startDate = time.time()
 result = HillClimb(initialGrid)
 executionTime = time.time() - startDate
-
 printgrid(result)
 print(executionTime)

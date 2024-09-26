@@ -36,18 +36,24 @@ def heuristic(grid):
 
 
 def fillInitialGrid(grid):
-    #this function fills the free boxes in each row with numbers in disorder
+    #this function fills the free boxes in each row with numbers
+
     grid = copy.deepcopy(grid)
     for row in range(9):
-        unset = [i for i in range(1, 10)]
+
+        availableNumbers = list(range(1, 10))
+        
+        #Randomize the order of the numbers
+        random.shuffle(availableNumbers)
+
         for val in grid[row]:
             if(val!=0):
-                unset.remove(val)
+                availableNumbers.remove(val)
+
         for col in range(9):
             if(not isFixed(col, row)):
-                rand = random.randint(0, len(unset)-1)
-                grid[row][col] = unset[0]
-                unset.pop(0)
+                grid[row][col] = availableNumbers[0]
+                availableNumbers.pop(0)
     
     return grid
 
@@ -73,12 +79,13 @@ def getNeighbor(grid):
     tmp = copy.deepcopy(grid)
 
     row = random.randint(0,8)
-    bestx1=0
-    bestx2=0
-    bestHeuristic = 999
+    bestx1=None
+    bestx2=None
+    bestHeuristic = float('inf')
+
     for x1 in range(9):
         for x2 in range(x1, 9):
-            if(isFixed(x1, row) or isFixed(x2, row)):
+            if((isFixed(x1, row) or isFixed(x2, row))):
                 continue
 
             swap(tmp, x1, row, x2, row)
@@ -86,11 +93,10 @@ def getNeighbor(grid):
             swap(tmp, x1, row, x2, row)
 
             #TODO <= or < ?
-            if(newHeuristic <= bestHeuristic):
+            if(newHeuristic < bestHeuristic):
                 bestHeuristic = newHeuristic
                 bestx1 = x1
                 bestx2 = x2
-                bestrow = row
 
     swap(tmp, bestx1, row, bestx2, row)
 
@@ -107,7 +113,7 @@ def HillClimb(grid):
         currentHeuristic = heuristic(grid)
 
         #round of guessing, we consider its stuck if the heuristic does not improve in max_iter iterations
-        while(i < max_iter * 10/currentHeuristic):
+        while(i < max_iter):
 
             newGrid = getNeighbor(currentGrid)
             newHeuristic = heuristic(newGrid)
@@ -117,8 +123,9 @@ def HillClimb(grid):
                 return newGrid
             
             #if the neighbor is better, it becomes the new grid
-            if(newHeuristic < currentHeuristic):
-                i=0
+            if(newHeuristic <= currentHeuristic):
+                if(newHeuristic<currentHeuristic):
+                    i=0
                 currentGrid = newGrid
                 currentHeuristic = newHeuristic
                 print(newHeuristic)
@@ -126,6 +133,6 @@ def HillClimb(grid):
             i+=1
 
 
-initialGrid = loadGrid("input/input5.txt")
+initialGrid = loadGrid("./input/input5.txt")
 result = HillClimb(initialGrid)
 printgrid(result)

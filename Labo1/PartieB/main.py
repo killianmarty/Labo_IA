@@ -1,7 +1,3 @@
-# grid = 9x9 matrix
-# value = number of values placed without conflict
-# node = grid and value
-
 import random
 import copy
 
@@ -17,92 +13,106 @@ def loadGrid(src):
     f.close()
     return matrix
 
-def checkUnique(array):
-    c=0
-    for e in array:
-        if(e==0):
-            c += 1
-    return len(array) > len(set(array)) + c -1
+def heuristic(grid):
+    #Here heuristic is the number of conflicts and we want to minimize it
 
-def evaluate(grid):
-    c=0
+    conflicts = 0
+    # Row: No need to count conficts on rows because the elements are unique on rows
 
-    #check for same number on same line
-    for i in range(9):
-        if(checkUnique(grid[i])):
-            c+=1
+    # Column
+    for j in range(9):
+        col = [grid[i][j] for i in range(9)]
+        conflicts += len(set(col)) - 9
+    # Square 3x3
+    for x in range(0, 9, 3):
+        for y in range(0, 9, 3):
+            sub_grid = []
+            for i in range(3):
+                for j in range(3):
+                    sub_grid.append(grid[x+i][y+j])
+            conflicts += len(set(sub_grid)) - 9
 
-    #check for same number on same column
-    for i in range(9):
-        if(checkUnique(grid[:][i])):
-            c+=1  
-
-    #check for same number on same square
-    for i in range(9):
-        tmp = []
-        for j in range(9):
-            tmp.append(grid[(i//3)*3 + j//3][(i%3)*3 + j%3])
-        if(checkUnique(tmp)):
-            c+=1
-
-    return c
-
-def createNode(grid, conflicts):
-    return {
-        "grid": grid,
-        "conflicts": conflicts
-    }
-
-#def getNeighbor(grid):
-    # randomIndex = random.randint(0, 8)
-    # while(grid[randomIndex//3][randomIndex%3]!=0):
-    #     randomIndex = random.randint(0, 8)
-    
-    # newGrid = copy.deepcopy(grid)
-    # newGrid[randomIndex//3][randomIndex%3] = random.randint(1, 9)
-
-    # return newGrid
-
-# def countZeros(grid):
-#     count = 0
-#     for l in grid:
-#         for c in l:
-#             if(c==0):
-#                 count+=1
-#     return count
+    return -conflicts
 
 
-# def hillClimb(node):
-#     currentNode = node.copy()
-#     i=0
-
-#     while(countZeros(currentNode["grid"])!=0):
-#         newGrid = getNeighbor(node["grid"])
-#         newNode = createNode(newGrid, evaluate(newGrid))
-
-#         if(newNode["conflicts"]==0):
-#             currentNode = newNode
-
-#     return currentNode
-
-def fillInitialGrid(grd):
-    grid = copy.deepcopy(grd)
-    for i in range(9):
-        row = grid[i]
-        rowSet = set(row)
-        for j in range(9):
-            c=0
-            if(not j in rowSet):
-                while(grid[i][c]!=0):
-                    c+=1
-                grid[i][c]=j
+def fillInitialGrid(grid):
+    #this function fills the free boxes in each row with numbers in disorder
+    grid = copy.deepcopy(grid)
+    for row in range(9):
+        unset = [i for i in range(1, 10)]
+        for val in grid[row]:
+            if(val!=0):
+                unset.remove(val)
+        for col in range(9):
+            if(not isFixed(col, row)):
+                grid[row][col] = unset[0]
+                unset.pop(0)
     
     return grid
 
+def printgrid(grid):
+    for line in grid:
+        string = ""
+        for number in line:
+            string += str(number) + " "
+        print(string)
+    print()
+
+def isFixed(x, y):
+    return initialGrid[y][x] != 0
+
+def swap(grid, x1, y1, x2, y2):
+    tmp = grid[y2][x2]
+    grid[y2][x2] = grid[y1][x1]
+    grid[y1][x1] = tmp
 
 
-grid = loadGrid("input/input1.txt")
-node = createNode(grid, 0)
-result = hillClimb(node)
+def getNeighbor(grid):
+    tmp = copy.deepcopy(grid)
 
+    row = random.randint(0,8)
+    fixed=True
+    x1=0
+    x2=0
+    while(fixed):
+        x1 = random.randint(0,8)
+        x2 = random.randint(0,8)
+        fixed = isFixed(x1, row) or isFixed(x2, row)
+
+    swap(tmp, x1, row, x2, row)
+
+    return tmp
+
+
+def HillClimb(grid):
+    
+    max_iter = 100000
+    
+    while(True):
+        i=0
+        currentGrid = fillInitialGrid(grid)
+        currentConflicts = heuristic(grid)
+
+        #round of guessing, we consider its stuck if the heuristic does not improve in max_iter iterations
+        while(i < max_iter):
+
+            newGrid = getNeighbor(currentGrid)
+            newConflicts = heuristic(newGrid)
+
+            #if solution, we return it
+            if(newConflicts == 0):
+                return newGrid
+            
+            #if the neighbor is better, it becomes the new grid
+            if(newConflicts < currentConflicts):
+                i=0
+                currentGrid = newGrid
+                currentConflicts = newConflicts
+                print(newConflicts)
+
+            i+=1
+
+
+initialGrid = loadGrid("input/input6.txt")
+result = HillClimb(initialGrid)
 print(result)

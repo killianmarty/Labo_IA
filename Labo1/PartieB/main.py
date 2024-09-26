@@ -1,6 +1,8 @@
 import random
 import copy
 import time
+import sys
+import getopt
 
 def loadGrid(src):
     matrix=[]
@@ -45,7 +47,8 @@ def fillInitialGrid(grid):
         availableNumbers = list(range(1, 10))
         
         #Randomize the order of the numbers
-        random.shuffle(availableNumbers)
+        if(('--shuffle', '') in opts):
+            random.shuffle(availableNumbers)
 
         for val in grid[row]:
             if(val!=0):
@@ -107,6 +110,9 @@ def getNeighbor(grid):
 def HillClimb(grid):
     
     max_iter = 250
+    if(len(args)!=0):
+        max_iter = int(args[0])
+        print(max_iter)
     
     while(True):
         i=0
@@ -133,9 +139,25 @@ def HillClimb(grid):
 
             i+=1
 
+# options
+opts = []
+args = []
 
-initialGrid = loadGrid("./input/input10.txt")
+try:
 
+   opts, args = getopt.getopt(sys.argv[1:], "s:", ["shuffle"])
+
+except getopt.GetoptError as err:
+
+   print(err)
+
+print(opts, args)
+
+
+
+# MAIN CALLS
+
+initialGrid = loadGrid("./input/input11.txt")
 startDate = time.time()
 result = HillClimb(initialGrid)
 executionTime = time.time() - startDate

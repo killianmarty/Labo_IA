@@ -4,15 +4,27 @@
 #include <time.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <pthread.h>
 
 #define SIZE 9
+#define NUM_THREADS 8
+
+typedef struct {
+    int grid[SIZE][SIZE];
+    int max_iter;
+    int thread_id;
+} ThreadData;
+
+int initialGrid[SIZE][SIZE];
+int shuffle = 1;
+
+int solutionThreadId = 0;
+int solution_found = 0;
+
 
 void initializeRandomSeed() {
     srand(time(NULL) ^ getpid());
 }
-
-int initialGrid[SIZE][SIZE];
-int shuffle = 1;
 
 void loadGrid(const char *src, int matrix[SIZE][SIZE]) {
     FILE *f = fopen(src, "r");
@@ -143,39 +155,28 @@ void swap(int grid[SIZE][SIZE], int x1, int y1, int x2, int y2) {
 }
 
 void getNeighbor(int grid[SIZE][SIZE], int result[SIZE][SIZE]) {
-    int tmp[SIZE][SIZE];
-    memcpy(tmp, grid, sizeof(tmp));
-
     int row = rand() % SIZE;
-    int bestx1 = -1, bestx2 = -1;
-    int bestHeuristic = 999;
+    int x1 = -1, x2 = -1;
 
-    for (int x1 = 0; x1 < SIZE; x1++) {
-        for (int x2 = x1; x2 < SIZE; x2++) {
-            if (isFixed(x1, row) || isFixed(x2, row)) continue;
+    do {
+        x1 = rand() % SIZE;
+    } while (isFixed(x1, row));
 
-            swap(tmp, x1, row, x2, row);
-            int newHeuristic = heuristic(tmp);
-            swap(tmp, x1, row, x2, row);
+    do {
+        x2 = rand() % SIZE;
+    } while (isFixed(x2, row) || x2 == x1);
 
-            if (newHeuristic < bestHeuristic) {
-                bestHeuristic = newHeuristic;
-                bestx1 = x1;
-                bestx2 = x2;
-            }
-        }
-    }
-
-    swap(tmp, bestx1, row, bestx2, row);
-    memcpy(result, tmp, sizeof(tmp));
+    
+    memcpy(result, grid, sizeof(int)*SIZE*SIZE);
+    swap(result, x1, row, x2, row);
 }
 
-void HillClimb(int grid[SIZE][SIZE], int max_iter) {
+int HillClimb(int grid[SIZE][SIZE], int max_iter) {
     int currentGrid[SIZE][SIZE];
     int newGrid[SIZE][SIZE];
     int currentHeuristic, newHeuristic;
 
-    while (1) {
+    while (!solution_found) {
         int i = 0;
         fillInitialGrid(grid);
         memcpy(currentGrid, grid, sizeof(currentGrid));
@@ -187,36 +188,74 @@ void HillClimb(int grid[SIZE][SIZE], int max_iter) {
 
             if (newHeuristic == 0) {
                 memcpy(grid, newGrid, sizeof(newGrid));
-                return;
+                solution_found = 1;
+                return 1;
             }
 
             if (newHeuristic < currentHeuristic) {
+                i=0;
                 memcpy(currentGrid, newGrid, sizeof(newGrid));
                 currentHeuristic = newHeuristic;
-                //printf("Iteration: %d, Heuristic: %d\n", i, currentHeuristic);
+            }else{
+                i++;
             }
-
-            i++;
         }
     }
+
+    return 0;
+}
+
+void* thread(void* arg) {
+    ThreadData* data = (ThreadData*)arg;
+
+    if(HillClimb(data->grid, data->max_iter)){
+        solutionThreadId = data->thread_id;
+    }
+
+    return NULL;
 }
 
 int main(int argc, char *argv[]) {
+    pthread_t threads[NUM_THREADS];
+    ThreadData threadData[NUM_THREADS];
+
     int opt;
-    int max_iter = 250;
+    int max_iter = 300;
 
     initializeRandomSeed();
 
-    loadGrid("./input/input10.txt", initialGrid);
+
+    loadGrid("./input/input11.txt", initialGrid);
     int result[SIZE][SIZE];
-    memcpy(result, initialGrid, sizeof(result));
 
-    clock_t start = clock();
-    HillClimb(result, max_iter);
-    clock_t end = clock();
 
+    time_t first_time;
+    time(&first_time);
+
+
+    //Multithreading managment
+    for (int i = 0; i < NUM_THREADS; i++) {
+        memcpy(threadData[i].grid, initialGrid, sizeof(initialGrid));
+        threadData[i].max_iter = max_iter;
+        threadData[i].thread_id = i;
+
+        pthread_create(&threads[i], NULL, thread, &threadData[i]);
+    }
+
+    for (int i = 0; i < NUM_THREADS; i++) {
+        pthread_join(threads[i], NULL);
+    }
+    
+    memcpy(result, threadData[solutionThreadId].grid, sizeof(result));
+
+
+    time_t new_time;
+    time(&new_time);
+
+
+    //Print results
     printGrid(result);
-    printf("Execution time: %f seconds\n", (double)(end - start) / CLOCKS_PER_SEC);
+    printf("Execution time: %d seconds\n", (int)(new_time - first_time));
 
     return 0;
 }

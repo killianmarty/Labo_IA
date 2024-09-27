@@ -1,123 +1,158 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include <string.h>
+#include <time.h>
+#include <unistd.h>
+#include <getopt.h>
 
-#define GRID_SIZE 9
+#define SIZE 9
 
-int loadGrid(const char *src, int grid[GRID_SIZE][GRID_SIZE]) {
+void initializeRandomSeed() {
+    srand(time(NULL) ^ getpid());
+}
+
+int initialGrid[SIZE][SIZE];
+int shuffle = 1;
+
+void loadGrid(const char *src, int matrix[SIZE][SIZE]) {
     FILE *f = fopen(src, "r");
     if (f == NULL) {
         perror("Error opening file");
-        return 1;
+        exit(EXIT_FAILURE);
     }
 
-    char line[GRID_SIZE + 1];
-    int row = 0;
-    while (fgets(line, GRID_SIZE + 1, f) != NULL) {
-        if (line[0] == '\n') {
-            break;
+    char line[SIZE + 2];
+    int i = 0;
+    while (fgets(line, sizeof(line), f)) {
+        if (line[0] == '\n') break;
+        for (int j = 0; j < SIZE; j++) {
+            matrix[i][j] = (line[j] == '.') ? 0 : line[j] - '0';
         }
-
-        for (int col = 0; col < GRID_SIZE; col++) {
-            grid[row][col] = (line[col] == '.') ? 0 : (line[col] - '0');
-        }
-
-        row++;
+        i++;
     }
 
     fclose(f);
-    return 0;
 }
 
-int heuristic(int grid[GRID_SIZE][GRID_SIZE]) {
+int heuristic(int grid[SIZE][SIZE]) {
     int conflicts = 0;
 
-    // Column conflicts
-    for (int j = 0; j < GRID_SIZE; j++) {
-        int counts[10] = {0};
-        for (int i = 0; i < GRID_SIZE; i++) {
-            counts[grid[i][j]]++;
+    for (int j = 0; j < SIZE; j++) {
+        int col[SIZE] = {0};
+        for (int i = 0; i < SIZE; i++) {
+            col[i] = grid[i][j];
         }
-        for (int i = 1; i <= GRID_SIZE; i++) {
-            conflicts += counts[i] - 1;
-        }
-    }
-
-    // Square 3x3 conflicts
-    for (int x = 0; x < GRID_SIZE; x += 3) {
-        for (int y = 0; y < GRID_SIZE; y += 3) {
-            int counts[10] = {0};
-            for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
-                    counts[grid[x + i][y + j]]++;
+        int unique_count = 0;
+        for (int i = 0; i < SIZE; i++) {
+            for (int k = i + 1; k < SIZE; k++) {
+                if (col[i] == col[k] && col[i] != 0) {
+                    unique_count++;
                 }
             }
-            for (int i = 1; i <= GRID_SIZE; i++) {
-                conflicts += counts[i] - 1;
+        }
+        conflicts += unique_count;
+    }
+
+    for (int x = 0; x < SIZE; x += 3) {
+        for (int y = 0; y < SIZE; y += 3) {
+            int sub_grid[SIZE] = {0};
+            int index = 0;
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    sub_grid[index++] = grid[x + i][y + j];
+                }
+            }
+            int unique_count = 0;
+            for (int i = 0; i < SIZE; i++) {
+                for (int k = i + 1; k < SIZE; k++) {
+                    if (sub_grid[i] == sub_grid[k] && sub_grid[i] != 0) {
+                        unique_count++;
+                    }
+                }
+            }
+            conflicts += unique_count;
+        }
+    }
+
+    return conflicts;
+}
+
+void fillInitialGrid(int grid[SIZE][SIZE]) {
+    int tempGrid[SIZE][SIZE];
+    memcpy(tempGrid, grid, sizeof(tempGrid));
+
+    for (int row = 0; row < SIZE; row++) {
+        int availableNumbers[SIZE];
+        for (int i = 0; i < SIZE; i++) {
+            availableNumbers[i] = i + 1;
+        }
+
+        if (shuffle) {
+            for (int i = SIZE - 1; i > 0; i--) {
+                int j = rand() % (i + 1);
+                int temp = availableNumbers[i];
+                availableNumbers[i] = availableNumbers[j];
+                availableNumbers[j] = temp;
+            }
+        }
+
+        for (int col = 0; col < SIZE; col++) {
+            if (tempGrid[row][col] != 0) {
+                for (int i = 0; i < SIZE; i++) {
+                    if (availableNumbers[i] == tempGrid[row][col]) {
+                        availableNumbers[i] = 0;
+                        break;
+                    }
+                }
+            }
+        }
+
+        int index = 0;
+        for (int col = 0; col < SIZE; col++) {
+            if (tempGrid[row][col] == 0) {
+                while (availableNumbers[index] == 0) {
+                    index++;
+                }
+                tempGrid[row][col] = availableNumbers[index];
+                index++;
             }
         }
     }
 
-    return -conflicts;
+    memcpy(grid, tempGrid, sizeof(tempGrid));
 }
 
-void fillInitialGrid(int grid[GRID_SIZE][GRID_SIZE], int initialGrid[GRID_SIZE][GRID_SIZE]) {
-    for (int row = 0; row < GRID_SIZE; row++) {
-        int availableNumbers[GRID_SIZE] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-        int numAvailable = GRID_SIZE;
-
-        for (int col = 0; col < GRID_SIZE; col++) {
-            if (initialGrid[row][col] != 0) {
-                availableNumbers[initialGrid[row][col] - 1] = 0;
-                numAvailable--;
-            }
-        }
-
-        for (int col = 0; col < GRID_SIZE; col++) {
-            if (initialGrid[row][col] == 0) {
-                int index = rand() % numAvailable;
-                int num = availableNumbers[index];
-                grid[row][col] = num;
-                availableNumbers[index] = 0;
-                numAvailable--;
-            }
-        }
-    }
-}
-
-void printGrid(int grid[GRID_SIZE][GRID_SIZE]) {
-    for (int i = 0; i < GRID_SIZE; i++) {
-        for (int j = 0; j < GRID_SIZE; j++) {
+void printGrid(int grid[SIZE][SIZE]) {
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
             printf("%d ", grid[i][j]);
         }
         printf("\n");
     }
+    printf("\n");
 }
 
-int isFixed(int x, int y, int initialGrid[GRID_SIZE][GRID_SIZE]) {
+int isFixed(int x, int y) {
     return initialGrid[y][x] != 0;
 }
 
-void swap(int grid[GRID_SIZE][GRID_SIZE], int x1, int y1, int x2, int y2) {
+void swap(int grid[SIZE][SIZE], int x1, int y1, int x2, int y2) {
     int tmp = grid[y2][x2];
     grid[y2][x2] = grid[y1][x1];
     grid[y1][x1] = tmp;
 }
 
-int getNeighbor(int grid[GRID_SIZE][GRID_SIZE], int initialGrid[GRID_SIZE][GRID_SIZE]) {
-    int tmp[GRID_SIZE][GRID_SIZE];
+void getNeighbor(int grid[SIZE][SIZE], int result[SIZE][SIZE]) {
+    int tmp[SIZE][SIZE];
     memcpy(tmp, grid, sizeof(tmp));
 
-    int row = rand() % GRID_SIZE;
+    int row = rand() % SIZE;
     int bestx1 = -1, bestx2 = -1;
-    int bestHeuristic = INT_MAX;
+    int bestHeuristic = 999;
 
-    for (int x1 = 0; x1 < GRID_SIZE; x1++) {
-        for (int x2 = x1 + 1; x2 < GRID_SIZE; x2++) {
-            if (isFixed(x1, row, initialGrid) || isFixed(x2, row, initialGrid)) {
-                continue;
-            }
+    for (int x1 = 0; x1 < SIZE; x1++) {
+        for (int x2 = x1; x2 < SIZE; x2++) {
+            if (isFixed(x1, row) || isFixed(x2, row)) continue;
 
             swap(tmp, x1, row, x2, row);
             int newHeuristic = heuristic(tmp);
@@ -131,50 +166,57 @@ int getNeighbor(int grid[GRID_SIZE][GRID_SIZE], int initialGrid[GRID_SIZE][GRID_
         }
     }
 
-    swap(grid, bestx1, row, bestx2, row);
-
-    return bestHeuristic;
+    swap(tmp, bestx1, row, bestx2, row);
+    memcpy(result, tmp, sizeof(tmp));
 }
 
-int hillClimb(int grid[GRID_SIZE][GRID_SIZE], int initialGrid[GRID_SIZE][GRID_SIZE]) {
-    const int maxIter = 150;
+void HillClimb(int grid[SIZE][SIZE], int max_iter) {
+    int currentGrid[SIZE][SIZE];
+    int newGrid[SIZE][SIZE];
+    int currentHeuristic, newHeuristic;
 
     while (1) {
-        fillInitialGrid(grid, initialGrid);
-        int currentHeuristic = heuristic(grid);
+        int i = 0;
+        fillInitialGrid(grid);
+        memcpy(currentGrid, grid, sizeof(currentGrid));
+        currentHeuristic = heuristic(currentGrid);
 
-        for (int i = 0; i < maxIter; i++) {
-            int newHeuristic = getNeighbor(grid, initialGrid);
+        while (i < max_iter) {
+            getNeighbor(currentGrid, newGrid);
+            newHeuristic = heuristic(newGrid);
 
             if (newHeuristic == 0) {
-                return 0;
+                memcpy(grid, newGrid, sizeof(newGrid));
+                return;
             }
 
             if (newHeuristic < currentHeuristic) {
+                memcpy(currentGrid, newGrid, sizeof(newGrid));
                 currentHeuristic = newHeuristic;
+                //printf("Iteration: %d, Heuristic: %d\n", i, currentHeuristic);
             }
+
+            i++;
         }
     }
-
-    return 1; // No solution found
 }
 
-int main() {
-    int grid[GRID_SIZE][GRID_SIZE];
-    int initialGrid[GRID_SIZE][GRID_SIZE];
+int main(int argc, char *argv[]) {
+    int opt;
+    int max_iter = 250;
 
-    if (loadGrid("./input/input10.txt", initialGrid)) {
-        return 1;
-    }
+    initializeRandomSeed();
+
+    loadGrid("./input/input10.txt", initialGrid);
+    int result[SIZE][SIZE];
+    memcpy(result, initialGrid, sizeof(result));
 
     clock_t start = clock();
-    if (hillClimb(grid, initialGrid)) {
-        printf("No solution found\n");
-    } else {
-        printGrid(grid);
-    }
-    double executionTime = (double)(clock() - start) / CLOCKS_PER_SEC;
-    printf("Execution time: %.3f seconds\n", executionTime);
+    HillClimb(result, max_iter);
+    clock_t end = clock();
+
+    printGrid(result);
+    printf("Execution time: %f seconds\n", (double)(end - start) / CLOCKS_PER_SEC);
 
     return 0;
 }

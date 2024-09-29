@@ -8,10 +8,10 @@
 
 #define SIZE 9
 #define NUM_THREADS 8
+#define MAX_ITER 200
 
 typedef struct {
     int grid[SIZE][SIZE];
-    int max_iter;
     int thread_id;
 } ThreadData;
 
@@ -26,11 +26,10 @@ void initializeRandomSeed() {
     srand(time(NULL) ^ getpid());
 }
 
-void loadGrid(const char *src, int matrix[SIZE][SIZE]) {
-    FILE *f = fopen(src, "r");
-    if (f == NULL) {
-        perror("Error opening file");
-        exit(EXIT_FAILURE);
+int loadGrid(const char *src, int matrix[SIZE][SIZE]) {
+    FILE *f = fopen(src, "r+");
+    if (!f) {
+        return 1;
     }
 
     char line[SIZE + 2];
@@ -44,6 +43,7 @@ void loadGrid(const char *src, int matrix[SIZE][SIZE]) {
     }
 
     fclose(f);
+    return 0;
 }
 
 int heuristic(int grid[SIZE][SIZE]) {
@@ -154,35 +154,42 @@ void swap(int grid[SIZE][SIZE], int x1, int y1, int x2, int y2) {
     grid[y1][x1] = tmp;
 }
 
+int countFixed(int rowIndex) {
+    int count = 0;
+    for (int i = 0; i < SIZE; i++) {
+        if (isFixed(i, rowIndex)) {
+            count++;
+        }
+    }
+    return count;
+}
+
 void getNeighbor(int grid[SIZE][SIZE], int result[SIZE][SIZE]) {
-    int row = rand() % SIZE;
-    int x1 = -1, x2 = -1;
-
+    int row, x1, x2;;
+    
     do {
+        row = rand() % SIZE;
         x1 = rand() % SIZE;
-    } while (isFixed(x1, row));
-
-    do {
         x2 = rand() % SIZE;
-    } while (isFixed(x2, row) || x2 == x1);
-
+    } while (isFixed(x1, row) || isFixed(x2, row) || x1==x2);
     
     memcpy(result, grid, sizeof(int)*SIZE*SIZE);
     swap(result, x1, row, x2, row);
 }
 
-int HillClimb(int grid[SIZE][SIZE], int max_iter) {
+int HillClimb(int grid[SIZE][SIZE]) {
     int currentGrid[SIZE][SIZE];
     int newGrid[SIZE][SIZE];
     int currentHeuristic, newHeuristic;
 
     while (!solution_found) {
+
         int i = 0;
         fillInitialGrid(grid);
         memcpy(currentGrid, grid, sizeof(currentGrid));
         currentHeuristic = heuristic(currentGrid);
 
-        while (i < max_iter) {
+        while (i < MAX_ITER) {
             getNeighbor(currentGrid, newGrid);
             newHeuristic = heuristic(newGrid);
 
@@ -208,7 +215,7 @@ int HillClimb(int grid[SIZE][SIZE], int max_iter) {
 void* thread(void* arg) {
     ThreadData* data = (ThreadData*)arg;
 
-    if(HillClimb(data->grid, data->max_iter)){
+    if(HillClimb(data->grid)){
         solutionThreadId = data->thread_id;
     }
 
@@ -219,33 +226,37 @@ int main(int argc, char *argv[]) {
     pthread_t threads[NUM_THREADS];
     ThreadData threadData[NUM_THREADS];
 
-    int opt;
-    int max_iter = 300;
+    if(argc == 1){
+        printf("Usage: %s [file]\n", argv[0]);
+        return 1;
+    }
 
     initializeRandomSeed();
+    
+    printf("Loading grid from file '%s' ...\n", argv[1]);
 
-
-    loadGrid("./input/input11.txt", initialGrid);
+    if(loadGrid(argv[1], initialGrid)){
+        printf("File does not exists.\n");
+        return 1;
+    };
     int result[SIZE][SIZE];
 
 
     time_t first_time;
     time(&first_time);
 
+    printf("Running Hill Climbing algorithm on %d threads...\n", NUM_THREADS);
 
     //Multithreading managment
     for (int i = 0; i < NUM_THREADS; i++) {
         memcpy(threadData[i].grid, initialGrid, sizeof(initialGrid));
-        threadData[i].max_iter = max_iter;
         threadData[i].thread_id = i;
 
         pthread_create(&threads[i], NULL, thread, &threadData[i]);
     }
-
-    for (int i = 0; i < NUM_THREADS; i++) {
-        pthread_join(threads[i], NULL);
-    }
+    for (int i = 0; i < NUM_THREADS; i++) pthread_join(threads[i], NULL);
     
+
     memcpy(result, threadData[solutionThreadId].grid, sizeof(result));
 
 
@@ -254,8 +265,9 @@ int main(int argc, char *argv[]) {
 
 
     //Print results
+    printf("Found a solution :\n");
     printGrid(result);
-    printf("Execution time: %d seconds\n", (int)(new_time - first_time));
+    printf("Execution time: %d seconds.\n", (int)(new_time - first_time));
 
     return 0;
 }

@@ -1,6 +1,9 @@
 import random
 import copy
 import time
+import math
+
+inputFile = "./input/input11.txt"
 
 def loadGrid(src):
     matrix=[]
@@ -87,7 +90,7 @@ def countZeros(grid):
 
 def HillClimb(grid):
     
-    max_iter = 2000
+    max_iter = 1000
     
     while(True):
         i=0
@@ -107,21 +110,20 @@ def HillClimb(grid):
                     return newGrid
             
             #if the neighbor is better, it becomes the new grid
-            if(newHeuristic <= currentHeuristic):
-                
-                if(newHeuristic != currentHeuristic):
-                    i=0 #restart counter
-                    #print(currentHeuristic)
-                    
+            if(newHeuristic <= currentHeuristic):   
+                i=0 
                 currentGrid = newGrid
                 currentHeuristic = newHeuristic  
+            else:
+                i+=1
 
-            i+=1
-
-
-initialGrid = loadGrid("./input/input10.txt")
+print("Loading grid from file '" + inputFile + "' ...")
+initialGrid = loadGrid(inputFile)
+print("Running HillClimb algorithm (alternative version) ...")
 startDate = time.time()
 result = HillClimb(initialGrid)
 executionTime = time.time() - startDate
+
+print("Found a solution :")
 printgrid(result)
-print(executionTime)
+print(f'Execution time: {math.floor(executionTime)} seconds')

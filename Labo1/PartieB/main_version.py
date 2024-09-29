@@ -3,6 +3,10 @@ import copy
 import time
 import sys
 import getopt
+import math
+
+MAX_ITER = 200
+inputFile = "input/input10.txt"
 
 def loadGrid(src):
     matrix=[]
@@ -47,8 +51,7 @@ def fillInitialGrid(grid):
         availableNumbers = list(range(1, 10))
         
         #Randomize the order of the numbers
-        if(('--shuffle', '') in opts):
-            random.shuffle(availableNumbers)
+        random.shuffle(availableNumbers)
 
         for val in grid[row]:
             if(val!=0):
@@ -79,40 +82,26 @@ def swap(grid, x1, y1, x2, y2):
 
 
 def getNeighbor(grid):
-    #we choose a random row, and we find the best pair of x1 and x2 to swap
+    #we choose a random row, and we chose two random unfixed boxes to swap
     tmp = copy.deepcopy(grid)
 
-    row = random.randint(0,8)
-    bestx1=None
-    bestx2=None
-    bestHeuristic = float('inf')
+    row = random.randint(0, 8)
+    x1 = random.randint(0, 8)
+    x2 = random.randint(0, 8)
 
-    for x1 in range(9):
-        for x2 in range(x1, 9):
-            if((isFixed(x1, row) or isFixed(x2, row))):
-                continue
+    while(isFixed(x1, row) or isFixed(x2, row) or x1 == x2):
+        row = random.randint(0, 8)
+        x1 = random.randint(0, 8)
+        x2 = random.randint(0, 8)
 
-            swap(tmp, x1, row, x2, row)
-            newHeuristic = heuristic(tmp)
-            swap(tmp, x1, row, x2, row)
-
-            #TODO <= or < ?
-            if(newHeuristic < bestHeuristic):
-                bestHeuristic = newHeuristic
-                bestx1 = x1
-                bestx2 = x2
-
-    swap(tmp, bestx1, row, bestx2, row)
+    swap(tmp, x1, row, x2, row)
 
     return tmp
 
 
 def HillClimb(grid):
     
-    max_iter = 250
-    if(len(args)!=0):
-        max_iter = int(args[0])
-        print(max_iter)
+    max_iter = MAX_ITER
     
     while(True):
         i=0
@@ -132,35 +121,24 @@ def HillClimb(grid):
             
             #if the neighbor is better, it becomes the new grid
             if(newHeuristic < currentHeuristic):
-
+                i=0
                 currentGrid = newGrid
                 currentHeuristic = newHeuristic
-                
 
-            i+=1
-
-# options
-opts = []
-args = []
-
-try:
-
-   opts, args = getopt.getopt(sys.argv[1:], "s:", ["shuffle"])
-
-except getopt.GetoptError as err:
-
-   print(err)
-
-print(opts, args)
+            else:
+                i+=1
 
 
 
 # MAIN CALLS
+print("Loading grid from file '" + inputFile + "' ...")
+initialGrid = loadGrid(inputFile)
 
-initialGrid = loadGrid("./input/input11.txt")
+print("Running Hill Climbing algorithm...")
 startDate = time.time()
 result = HillClimb(initialGrid)
 executionTime = time.time() - startDate
 
+print("Found a solution :")
 printgrid(result)
-print(executionTime)
+print(f'Execution time : {math.floor(executionTime, 2)} seconds.')

@@ -6,9 +6,19 @@
 #include <getopt.h>
 #include <pthread.h>
 
-#define SIZE 9
-#define NUM_THREADS 8
-#define MAX_ITER 200
+#ifndef SIZE
+    #define SIZE 9
+#endif
+
+#ifndef NUM_THREADS
+    #define NUM_THREADS -1
+#endif
+
+#ifndef MAX_ITER
+    #define MAX_ITER 200
+#endif
+
+int num_thread = NUM_THREADS;
 
 typedef struct {
     int grid[SIZE][SIZE];
@@ -223,8 +233,13 @@ void* thread(void* arg) {
 }
 
 int main(int argc, char *argv[]) {
-    pthread_t threads[NUM_THREADS];
-    ThreadData threadData[NUM_THREADS];
+
+    if (num_thread == -1) {
+        num_thread = sysconf(_SC_NPROCESSORS_ONLN);
+    }
+
+    pthread_t threads[num_thread];
+    ThreadData threadData[num_thread];
 
     if(argc == 1){
         printf("Usage: %s [file]\n", argv[0]);
@@ -245,16 +260,16 @@ int main(int argc, char *argv[]) {
     time_t first_time;
     time(&first_time);
 
-    printf("Running Hill Climbing algorithm on %d threads...\n", NUM_THREADS);
+    printf("Running Hill Climbing algorithm on %d threads...\n", num_thread);
 
     //Multithreading managment
-    for (int i = 0; i < NUM_THREADS; i++) {
+    for (int i = 0; i < num_thread; i++) {
         memcpy(threadData[i].grid, initialGrid, sizeof(initialGrid));
         threadData[i].thread_id = i;
 
         pthread_create(&threads[i], NULL, thread, &threadData[i]);
     }
-    for (int i = 0; i < NUM_THREADS; i++) pthread_join(threads[i], NULL);
+    for (int i = 0; i < num_thread; i++) pthread_join(threads[i], NULL);
     
 
     memcpy(result, threadData[solutionThreadId].grid, sizeof(result));

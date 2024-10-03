@@ -34,11 +34,11 @@ Ensuite j'ai également utilisé une structure de "noeud" qui contient le parent
 
 Comme les trois algorithmes de recherches sont basés sur le même algorithme mais avec uniquement la façon de trier la frontière qui varie, j'ai décidé de n'implémenter qu'une fonction de recherche générique "explore" à laquelle je passe en paramètre la fonction responsable d'ajouter/trier des éléments à la frontière.
 
-Cette fonction reprend l'algorithme vu en cours, en ajoutant une vérification afin d'éviter de visiter plusieurs fois un état. En effet, cette vérification est nécéssaire avec d'éviter de tourner en boucle.
+Cette fonction reprend l'algorithme vu en cours, en ajoutant une vérification afin d'éviter de visiter plusieurs fois un état. En effet, cette vérification est nécéssaire afin d'éviter de tourner en boucle.
 
 Une fois l'état objectif atteint, la fonction "explore" reconstruit le chemin de la solution en remontant les parents depuis l'état final, et retourne la solution.
 
-Enfin, j'ai crée des fonctions principales pour chaque algorithme de recherche (Largeur, Profondeur, A*) qui se chargent de charger la grille depuis le fichier, appeller la fonction "explore" avec les bons paramètres, afficher le chemin final, et écrire le résultat d'exécution dans un fichier.
+Enfin, j'ai crée des fonctions principales pour chaque algorithme de recherche (Largeur, Profondeur, A*) qui s'occupent de charger la grille depuis le fichier, appeller la fonction "explore" avec les bons paramètres, afficher le chemin final, et écrire le résultat d'exécution dans un fichier.
 
 #### Observations
 
@@ -95,9 +95,9 @@ Pour implémenter cette méthode, j'ai créé 2 versions de l'algorithme .
 
 ##### Principe
 
-Dans cette version, la grille initiale est une grille dont on remplis chaque ligne par tous les chiffres de 1 à 9 (en évitant les cases fixées par la grille de départ), et un voisin de la grille est la même grille, mais dont on a échangé deux cases (non fixées) d'une même ligne.
+Dans cette version, la grille initiale est une grille dont on remplit chaque ligne par tous les chiffres de 1 à 9 (en évitant les cases fixées par la grille de départ), et un voisin de la grille est la même grille, mais dont on a échangé deux cases (non fixées) d'une même ligne.
 
-Pour choisir l'état voisin, on choisit une ligne aléatoirement, puis on choisit deux cases de cette ligne aléatoirement.
+Pour choisir l'état voisin, on choisit une ligne aléatoirement, puis on choisit deux cases de cette ligne aléatoirement que l'on va échanger.
 
 ##### Utilisation
 
@@ -149,15 +149,13 @@ Ainsi, l'algorithme de Hill Climbing n'est pas adapté pour résoudre efficaceme
 
 La méthode de backtracking consiste à ajouter des valeurs dans des cases vides jusqu'à ne plus avoir de possibilités. Lorsqu'il n'y a plus de possibilités, si c'est parce qu'il n'y a plus de cases vides alors le sudoku est résolu, sinon, on teste une autre valeur dans la case, si il n'y a plus de valeurs possibles, on remonte dans la case vide précédente et on recommence.
 
-C'est donc un cas particulier du parcours en profondeur. Pour l'implémenter, on peut utiliser un algorithme qui utilise une liste frontière comme dans les parties précédentes et trier cette liste en chosiissant la case avec le plus de possibilités, puis les valeurs qui réduisent le plus le nombre total de possibilité de la grille.
+C'est donc un cas particulier du parcours en profondeur. Pour l'implémenter, on peut utiliser un algorithme qui utilise une liste frontière comme dans les parties précédentes et trier cette liste en choisissant la case avec le plus de possibilités, puis les valeurs qui réduisent le plus le nombre total de possibilité de la grille.
 
 Or, une implémentation plus simple est une implémentation récursive qui choisit la première case vide, la remplit avec toutes les valeurs possibles, et itère de façon récursive.
 
 #### Utilisation
 
-Changer le chemin du fichier d'input dans backtracking.py
-
-Lancer le fichier python :
+Modifier la variable "inputFile" dans Labo1/PartieB/backtracking.py pour séléctionner le fichier d'entrée. Puis :
 
 ```bash
     cd Labo1/PartieB/
@@ -166,4 +164,4 @@ Lancer le fichier python :
 
 #### Observations
 
-Cette méthode est beaucoup plus rapide que le hill climbing, quasiment instantanée. Elle est donc plus adaptée pour résoudre un sudoku.
+Cette méthode est beaucoup plus rapide que le Hill Climbing, elle est quasiment instantanée. Elle est donc plus adaptée pour résoudre un sudoku.

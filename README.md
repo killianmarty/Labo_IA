@@ -173,3 +173,27 @@ Ce laboratoire m'a permis d'apprendre à implémenter les algorithmes de parcour
 Cependant, j'ai déjà implémenté des algorithmes gloutons auparavant.
 
 En conclusion, j'ai découvert des applications de l'IA différentes de ce à dont on peut penser quand on pense à l'IA (réseaux de neuronnes etc...).
+
+
+
+
+
+
+
+## Laboratoire 2 : Partie A
+
+### Familiarisation avec le langage
+
+Pour me familiariser avec le langage, j'ai testé les deux premiers exemples et l'exemple de coloriage fournis au lien suivant : https://www.dbai.tuwien.ac.at/proj/dlv/tutorial/
+
+Tout compile bien et fontionne bien.
+
+J'ai ensuite modifié l'exemple de coloriage pour qu'il corresponde à celui du cours. Cela fonctionne bien et le fichier est disponible dans "Labo2/PartieA/coloring2.dl".
+
+Enfin, j'ai corrigé les "checks" de l'exemple des 8-reines. En effet, la verification des diagonales ne couvrait pas tous les cas en fonction de si X1 > X2 et Y1 > Y2 ou pas. Ce qui retournait une erreur "constraint not safe".
+
+J'ai donc modifié les contraintes fortes pour utiliser des comparaisons de valeurs absolues afin d'éviter ce problème. L'avantage de cette implémentation est que l'on peut vérifier qu'il n'y a pas de reine dans la même colonne et dans les mêmes diagonales, uniquement avec cette ligne de contrainte :
+
+```dlv
+:- q(X1,Y1), q(X2,Y2), #absdiff(X1, X2, N), #absdiff(Y1, Y2, N), N <> 0.
+```

@@ -1,0 +1,37 @@
+node(westernAustralia).
+node(northernTerritory).
+node(southAustralia).
+node(queensland).
+node(newSouthWales).
+node(victoria).
+node(tasmania).
+
+arc(westernAustralia, northernTerritory).
+arc(westernAustralia, southAustralia).
+
+arc(northernTerritory, southAustralia).
+arc(northernTerritory, queensland).
+arc(northernTerritory, westernAustralia).
+
+arc(southAustralia, queensland).
+arc(southAustralia, newSouthWales).
+arc(southAustralia, victoria).
+arc(southAustralia, westernAustralia).
+arc(southAustralia, northernTerritory).
+
+arc(queensland, newSouthWales).
+arc(queensland, northernTerritory).
+arc(queensland, southAustralia).
+
+arc(newSouthWales, victoria).
+arc(newSouthWales, queensland).
+arc(newSouthWales, southAustralia).
+
+arc(victoria, newSouthWales).
+arc(victoria, southAustralia).
+
+
+
+col(Country, red) v col(Country, green) v col(Country, blue) :- node(Country).
+
+:- arc(Country1, Country2), col(Country1, CommonColor), col(Country2, CommonColor).

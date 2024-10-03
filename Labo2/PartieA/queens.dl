@@ -1,0 +1,7 @@
+% guess horizontal position for each row
+q(X,1) v q(X,2) v q(X,3) v q(X,4) v q(X,5) v q(X,6) v q(X, 7) v q(X,8) :- #int(X), X > 0.
+
+% check
+
+% assert that no two queens are in a diagonal and in column
+:- q(X1,Y1), q(X2,Y2), #absdiff(X1, X2, N), #absdiff(Y1, Y2, N), N <> 0.

@@ -1,0 +1,41 @@
+
+
+animal(chien).
+animal(oiseau).
+animal(chat).
+animal(cheval).
+animal(poisson).
+
+boisson(the).
+boisson(cafe).
+boisson(lait).
+boisson(biere).
+boisson(eau).
+
+maison(rouge).
+maison(blanche).
+maison(verte) :- boisson(cafe).
+maison(jaune) :- fume(dunhill).
+maison(bleue).
+
+
+fume(pallmall).
+fume(dunhill).
+fume(blends).
+fume(bluemaster).
+fume(prince).
+
+personne(anglais) :- maison(rouge).
+personne(suedois) :- animal(chien).
+personne(danois) :- boisson(the).
+personne(allemand) :- fume(prince).
+personne(norvegien).
+
+%add a solution state containing animal, boisson, etc...
+
+
+%personne(anglais) v personne(suedois) v personne(danois) v personne(allemand) v personne(norvegien) :- nationalite.
+%animal(chien) v animal(oiseau) v animal(chat) v animal(cheval) v animal(poisson) :- eleve.
+%maison(rouge) v maison(blanche) v maison(verte) v maison(jaune) v maison(bleue) :- couleur.
+%boisson(the) v boisson(cafe) v boisson(lait) v boisson(biere) v boisson(eau) :- boit.
+%fume(pallmall) v fume(dunhill) v fume(blends) v fume(bluemaster) v fume(prince) :-cigare.

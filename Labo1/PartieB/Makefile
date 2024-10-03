@@ -1,4 +1,4 @@
-EXEC = main_version
+EXEC = hill_climbing_main
 
 CC = gcc
 
@@ -6,8 +6,8 @@ CFLAGS = -Wall -Wextra -O2
 
 all: $(EXEC)
 
-$(EXEC): main_version.c
-	$(CC) $(CFLAGS) main_version.c -o $(EXEC)
+$(EXEC): hill_climbing_main.c
+	$(CC) $(CFLAGS) hill_climbing_main.c -o $(EXEC)
 
 clean:
 	rm -f $(EXEC)

@@ -103,11 +103,11 @@ Pour choisir l'état voisin, on choisit une ligne aléatoirement, puis on choisi
 
 ###### Version python
 
-Modifier la variable "inputFile" dans Labo1/PartieB/main_version.py pour séléctionner le fichier d'entrée. Puis :
+Modifier la variable "inputFile" dans Labo1/PartieB/hill_climbing_main.py pour séléctionner le fichier d'entrée. Puis :
 
 ```bash
 cd Labo1/PartieB/
-python3 main_version.py
+python3 hill_climbing_main.py
 ```
 
 ###### Version C avec multithreading
@@ -119,7 +119,7 @@ Comme un algorithme de Hill Climbing peut être très long à l'éxécution, j'a
 ```bash
 cd Labo1/PartieB/
 make
-./main_version chemin_relatif_du_fichier_input
+./hill_climbing_main chemin_relatif_du_fichier_input
 ```
 
 #### Version alternative : remplissage de case
@@ -128,11 +128,11 @@ Dans cette version, la grille initiale est la grille de départ dans le fichier 
 
 ##### Utilisation
 
-Modifier la variable "inputFile" dans Labo1/PartieB/alt_version.py pour séléctionner le fichier d'entrée. Puis :
+Modifier la variable "inputFile" dans Labo1/PartieB/hill_climbing_alt.py pour séléctionner le fichier d'entrée. Puis :
 
 ```bash
 cd Labo1/PartieB/
-python3 alt_version.py
+python3 hill_climbing_alt.py
 ```
 
 #### Performances
@@ -145,4 +145,25 @@ Ainsi, l'algorithme de Hill Climbing n'est pas adapté pour résoudre efficaceme
 
 ### Méthode 2 : Backtracking
 
-### Méthode 3 : Algorithme génétique (optionnelle)
+#### Principe
+
+La méthode de backtracking consiste à ajouter des valeurs dans des cases vides jusqu'à ne plus avoir de possibilités. Lorsqu'il n'y a plus de possibilités, si c'est parce qu'il n'y a plus de cases vides alors le sudoku est résolu, sinon, on teste une autre valeur dans la case, si il n'y a plus de valeurs possibles, on remonte dans la case vide précédente et on recommence.
+
+C'est donc un cas particulier du parcours en profondeur. Pour l'implémenter, on peut utiliser un algorithme qui utilise une liste frontière comme dans les parties précédentes et trier cette liste en chosiissant la case avec le plus de possibilités, puis les valeurs qui réduisent le plus le nombre total de possibilité de la grille.
+
+Or, une implémentation plus simple est une implémentation récursive qui choisit la première case vide, la remplit avec toutes les valeurs possibles, et itère de façon récursive.
+
+#### Utilisation
+
+Changer le chemin du fichier d'input dans backtracking.py
+
+Lancer le fichier python :
+
+```bash
+    cd Labo1/PartieB/
+    python3 backtracking.py
+```
+
+#### Observations
+
+Cette méthode est beaucoup plus rapide que le hill climbing, quasiment instantanée. Elle est donc plus adaptée pour résoudre un sudoku.

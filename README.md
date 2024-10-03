@@ -165,3 +165,11 @@ Modifier la variable "inputFile" dans Labo1/PartieB/backtracking.py pour séléc
 #### Observations
 
 Cette méthode est beaucoup plus rapide que le Hill Climbing, elle est quasiment instantanée. Elle est donc plus adaptée pour résoudre un sudoku.
+
+## Ce que j'ai appris dans ce laboratoire
+
+Ce laboratoire m'a permis d'apprendre à implémenter les algorithmes de parcours d'arbres, ce que je n'avais jamais fait auparavant. J'ai aussi découvert des applications des arbres en IA que je ne soupçonnais pas. J'ai également appris à implémenter un algorithme de Hill Climbing quand on ne peut pas calculer le gradient (j'ai déjà implémenté une descente du gradient auparavant). De plus j'ai découvert le Backtracking.
+
+Cependant, j'ai déjà implémenté des algorithmes gloutons auparavant.
+
+En conclusion, j'ai découvert des applications de l'IA différentes de ce à dont on peut penser quand on pense à l'IA (réseaux de neuronnes etc...).

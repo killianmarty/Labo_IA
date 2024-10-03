@@ -146,5 +146,5 @@ executionTime = time.time() - startDate
 
 print("Found a solution :")
 printgrid(result)
-print(f'Execution time : {math.floor(executionTime, 2)} seconds.')
+print(f'Execution time : {math.floor(executionTime)} seconds.')
 print(f'Number of iterations : {nb_iter}.')

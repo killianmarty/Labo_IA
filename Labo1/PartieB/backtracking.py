@@ -1,4 +1,9 @@
+import time
+import math
+
 inputFile = "input/input13.txt"
+
+nb_iter = 0
 
 def loadGrid(src):
     matrix=[]
@@ -38,10 +43,14 @@ def findNextEmptyBox(grid):
     return None
 
 def backtracking(grid):
+    global nb_iter
+    nb_iter+=1
     emptyBox = findNextEmptyBox(grid)
+
     if emptyBox == None:
         return True
     x, y = emptyBox
+
     for i in range(1, 10):
         if isPossible(grid, x, y, i):
             grid[y][x] = i
@@ -54,7 +63,16 @@ def backtracking(grid):
 
 print("Loading input grid...")
 matrix = loadGrid(inputFile)
+
 print("Running backtracking method...")
+
+startDate = time.time()
+
 backtracking(matrix)
+
+executionTime = time.time() - startDate
+
 print("Found solution :")
 printGrid(matrix)
+print(f'Execution time : {math.floor(executionTime)} seconds.')
+print("Number of iterations: ", nb_iter)

@@ -3,6 +3,8 @@ import copy
 import time
 import math
 
+nb_iter = 0
+
 inputFile = "./input/input11.txt"
 
 def loadGrid(src):
@@ -90,6 +92,7 @@ def countZeros(grid):
 
 def HillClimb(grid):
     
+    global nb_iter
     max_iter = 1000
     
     while(True):
@@ -117,6 +120,8 @@ def HillClimb(grid):
             else:
                 i+=1
 
+            nb_iter += 1
+
 print("Loading grid from file '" + inputFile + "' ...")
 initialGrid = loadGrid(inputFile)
 print("Running HillClimb algorithm (alternative version) ...")
@@ -127,3 +132,4 @@ executionTime = time.time() - startDate
 print("Found a solution :")
 printgrid(result)
 print(f'Execution time: {math.floor(executionTime)} seconds')
+print(f'Number of iterations: {nb_iter}')

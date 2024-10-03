@@ -13,12 +13,14 @@
 typedef struct {
     int grid[SIZE][SIZE];
     int thread_id;
+    int nb_iter;
 } ThreadData;
 
 int initialGrid[SIZE][SIZE];
 int shuffle = 1;
 
 int solutionThreadId = 0;
+int solutionNbIter = 0;
 int solution_found = 0;
 
 
@@ -177,7 +179,7 @@ void getNeighbor(int grid[SIZE][SIZE], int result[SIZE][SIZE]) {
     swap(result, x1, row, x2, row);
 }
 
-int HillClimb(int grid[SIZE][SIZE]) {
+int HillClimb(int grid[SIZE][SIZE], int * nb_iter) {
     int currentGrid[SIZE][SIZE];
     int newGrid[SIZE][SIZE];
     int currentHeuristic, newHeuristic;
@@ -206,6 +208,8 @@ int HillClimb(int grid[SIZE][SIZE]) {
             }else{
                 i++;
             }
+
+            (*nb_iter)++;
         }
     }
 
@@ -215,8 +219,9 @@ int HillClimb(int grid[SIZE][SIZE]) {
 void* thread(void* arg) {
     ThreadData* data = (ThreadData*)arg;
 
-    if(HillClimb(data->grid)){
+    if(HillClimb(data->grid, &(data->nb_iter))){
         solutionThreadId = data->thread_id;
+        solutionNbIter = data->nb_iter;
     }
 
     return NULL;
@@ -268,6 +273,7 @@ int main(int argc, char *argv[]) {
     printf("Found a solution :\n");
     printGrid(result);
     printf("Execution time: %d seconds.\n", (int)(new_time - first_time));
+    printf("Number of iterations: %d\n", solutionNbIter);
 
     return 0;
 }

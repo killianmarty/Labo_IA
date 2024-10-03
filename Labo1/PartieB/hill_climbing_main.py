@@ -6,6 +6,8 @@ import getopt
 import math
 
 MAX_ITER = 200
+nb_iter = 0
+
 inputFile = "input/input10.txt"
 
 def loadGrid(src):
@@ -101,6 +103,7 @@ def getNeighbor(grid):
 
 def HillClimb(grid):
     
+    global nb_iter
     max_iter = MAX_ITER
     
     while(True):
@@ -128,6 +131,8 @@ def HillClimb(grid):
             else:
                 i+=1
 
+            nb_iter += 1
+
 
 
 # MAIN CALLS
@@ -142,3 +147,4 @@ executionTime = time.time() - startDate
 print("Found a solution :")
 printgrid(result)
 print(f'Execution time : {math.floor(executionTime, 2)} seconds.')
+print(f'Number of iterations : {nb_iter}.')

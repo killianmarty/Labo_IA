@@ -1,0 +1,35 @@
+animal(chien).
+animal(oiseau).
+animal(chat).
+animal(cheval).
+animal(poisson).
+
+boisson(the).
+boisson(cafe).
+boisson(lait).
+boisson(biere).
+boisson(eau).
+
+maison(rouge, X) :- #int(X), X > 0.
+maison(blanche, X) :- #int(X), X > 0..
+maison(verte, X) :- #int(X), X > 0..
+maison(jaune, X) :- #int(X), X > 0..
+maison(bleue, X) :- #int(X), X > 0..
+
+
+fume(pallmall).
+fume(dunhill).
+fume(blends).
+fume(bluemaster).
+fume(prince).
+
+nationalite(anglais).
+nationalite(suedois).
+nationalite(danois).
+nationalite(allemand).
+nationalite(norvegien).
+
+
+
+%add a solution state containing animal, boisson, etc...
+

@@ -1,0 +1,28 @@
+%couleur 1:rouge, 2: blanche, 3: verte, 4: jaune, 5: bleue
+adopt(chien, X) v adopt(oiseaux, X) v adopt(chats, X) v adopt(cheval, X) v adopt(poisson, X) :- #int(X), X > 0.
+nationalite(anglais, X) v nationalite(suedois, X) v nationalite(danois, X) v nationalite(norvegien, X) v nationalite(allemand, X) :- #int(X), X > 0.
+boit(the, X) v boit(cafe, X) v boit(lait, X) v boit(biere, X) v boit(eau, X) :- #int(X), X > 0.
+fume(pallmall, X) v fume(dunhill, X) v fume(blends, X) v fume(bluemaster, X) v fume(prince, X) :- #int(X), X > 0.
+maison(1, Y, X) v maison(2, Y, X) v maison(3, Y, X) v maison(4, Y, X) v maison(5, Y, X) :- #int(X), #int(Y), X > 0, Y > 0.
+
+:- maison(1, Y, X), nationalite(anglais, X2), Y > 0, X == X2.
+:- adopt(chien, X), nationalite(suedois, X2), X == X2.
+:- boit(the, X), nationalite(danois, X2), X == X2.
+:- maison(2, Y, X), maison(3, Y2, X2), X <> X2, #prec(Y, Y2).
+:- boit(cafe, X), maison(3, Y, X2), Y > 0, X == X2.
+:- adopt(oiseaux, X), fume(pallmall, X2), X == X2.
+:- fume(dunhill, X), maison(4, Y, X2), X==X2.
+:- boit(lait, X), maison(Z, 3, X2), X==X2.
+:- maison(Z, 1, X), nationalite(norvegien, X2), Z > 0, X==X2.
+:- adopt(chat, X), maison(Z, Y, X), fume(blends, X2), maison(Z2, Y2, X2), #absdiff(Y, Y2, N), N == 1, Z <> Z2, X <> X2.
+:- fume(dunhill, X), maison(Z, Y, X), adopt(cheval, X2), maison(Z2, Y2, X2), #absdiff(Y, Y2, N), N == 1, Z <> Z2, X <> X2.
+:- boit(biere, X), fume(bluemaster, X2), X == X2.
+:- fume(prince, X),  nationalite(allemand, X2), X == X2.
+:- maison(5, Y, X), nationalite(norvegien, X2), maison(Z2, Y2, X2), X <> X2, #absdiff(Y, Y2, N), N == 1, Z2 > 0.
+:- boit(eau, X), maison(Z, Y, X), fume(blends, X2), maison(Z2, Y2, X2), #absdiff(Y, Y2, N), N == 1, Z <> Z2, X <> X2.
+
+:- adopt(X, Y), adopt(X, Y2), #int(Y), #int(Y2), Y <> Y2.
+:- fume(X, Y), fume(X, Y2), Y <> Y2.
+:- boit(X, Y), boit(X, Y2), Y <> Y2.
+:- nationalite(X, Y), nationalite(X, Y2), Y <> Y2.
+:- maison(X, Y, Z), maison(X, Y, Z2), Z <> Z2.

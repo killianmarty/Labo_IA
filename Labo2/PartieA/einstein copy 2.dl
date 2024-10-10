@@ -1,0 +1,5 @@
+
+
+%personne(nationalite, couleurmaison, positionmaison, boisson, cigarette, animal)
+
+personne(_, rouge, _, _, _, _) :- personne(anglais, _, _, _, _, _).

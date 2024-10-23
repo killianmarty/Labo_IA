@@ -197,3 +197,25 @@ J'ai donc modifié les contraintes fortes pour utiliser des comparaisons de vale
 ```dlv
 :- q(X1,Y1), q(X2,Y2), #absdiff(X1, X2, N), #absdiff(Y1, Y2, N), N <> 0.
 ```
+
+### Problème d'Einstein
+
+Pour ce problème, une première étape est de faire des propositions (guess) sur: nationalité, fume, boit, maison, adopte. Ces éléments contiennent une valeur et un entier qui représente la position de la maison de la personne concernée. Exemple: maison(rouge, 1) signifie que la première maison est rouge.
+
+Ensuite, j'ai rédigé des contraintes pour respecter les règles données dans le problème. Enfin, j'ai ajouté des contraintes pour s'assurer que chaque personne a une unique maison, un unique animal, un unique cigare, une unique nationalité, et une unique boisson.
+
+**Précision: j'ai défini la constante maxint dans le code, il n'est donc pas nécéssaire de spécifier le paramètre -N dans la commande d'éxecution du programme**
+
+#### Utilisation
+
+Pour lancer le programme DLV de résolution du problème d'Einstein :
+
+Windows:
+```dlv
+.\dlv.exe einstein.dl
+```
+
+Linux:
+```dlv
+./dlv.bin einstein.dl
+```

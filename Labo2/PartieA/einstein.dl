@@ -15,13 +15,10 @@ maison(rouge, X) v maison(blanche, X) v maison(verte, X) v maison(jaune, X) v ma
 :- fume(dunhill, X), maison(jaune, X2), X <> X2.
 boit(lait, 3).
 nationalite(norvegien, 1).
-
 :- adopt(chats, X), fume(blends, X2), not #absdiff(X, X2, 1).
 :- fume(dunhill, X), adopt(cheval, X2), not #absdiff(X, X2, 1).
-
 :- boit(biere, X), fume(bluemaster, X2), X <> X2.
 :- fume(prince, X),  nationalite(allemand, X2), X <> X2.
-
 :- maison(bleue, X), nationalite(norvegien, X2), not #absdiff(X, X2, 1).
 :- boit(eau, X), fume(blends, X2), not #absdiff(X, X2, 1).
 

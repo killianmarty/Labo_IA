@@ -1,4 +1,7 @@
+#maxint=5.
+
 %couleur 1:rouge, 2: blanche, 3: verte, 4: jaune, 5: bleue
+
 adopt(chien, X) v adopt(oiseaux, X) v adopt(chats, X) v adopt(cheval, X) v adopt(poisson, X) :- #int(X), X > 0.
 nationalite(anglais, X) v nationalite(suedois, X) v nationalite(danois, X) v nationalite(norvegien, X) v nationalite(allemand, X) :- #int(X), X > 0.
 boit(the, X) v boit(cafe, X) v boit(lait, X) v boit(biere, X) v boit(eau, X) :- #int(X), X > 0.
@@ -25,4 +28,4 @@ fume(prince, X) :- nationalite(allemand, X).
 :- fume(X, Y), fume(X, Y2), Y <> Y2.
 :- boit(X, Y), boit(X, Y2), Y <> Y2.
 :- nationalite(X, Y), nationalite(X, Y2), Y <> Y2.
-:- maison(X, Y, Z), maison(X, Y, Z2), Z <> Z2.
+%:- maison(X, Y, Z), maison(X, Y2, Z2), Z <> Z2.

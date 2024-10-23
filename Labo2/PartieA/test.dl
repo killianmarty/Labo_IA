@@ -1,0 +1,7 @@
+#maxint=5.
+
+adopt(chien, X) v adopt(oiseaux, X) v adopt(chats, X) v adopt(cheval, X) v adopt(poisson, X) :- #int(X), X > 0.
+nationalite(anglais, X) v nationalite(suedois, X) v nationalite(danois, X) v nationalite(norvegien, X) v nationalite(allemand, X) :- #int(X), X > 0.
+boit(the, X) v boit(cafe, X) v boit(lait, X) v boit(biere, X) v boit(eau, X) :- #int(X), X > 0.
+fume(pallmall, X) v fume(dunhill, X) v fume(blends, X) v fume(bluemaster, X) v fume(prince, X) :- #int(X), X > 0.
+maison(rouge, X) v maison(blanche, X) v maison(verte, X) v maison(jaune, X) v maison(bleue, X) :- #int(X), X > 0.

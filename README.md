@@ -158,8 +158,8 @@ Or, une implémentation plus simple est une implémentation récursive qui chois
 Modifier la variable "inputFile" dans Labo1/PartieB/backtracking.py pour séléctionner le fichier d'entrée. Puis :
 
 ```bash
-    cd Labo1/PartieB/
-    python3 backtracking.py
+cd Labo1/PartieB/
+python3 backtracking.py
 ```
 
 #### Observations
@@ -219,3 +219,151 @@ Linux:
 ```dlv
 ./dlv.bin einstein.dl
 ```
+
+## Laboratoire 2 : Partie B
+
+L'objectif de cette partie est d'implémenter un agent logique qui utilise un algorithme d'inférence pour jouer au Brain Guess
+
+### Créateur de combinaison
+
+La première étape consiste à créer un créateur qui permet de générer une combinaison, et de retourner un feedback au joueur pour savoir combien il y des pions bien placés et combien de pions mal placés mais de la bonne couleur.
+
+Voici le code Python pour implémenter cette classe :
+
+```python
+import random
+
+class Createur:
+    def __init__(self):
+        self.combination = self.createCombination()
+        self.nbFeedbacks = 0
+
+    def createCombination(self):
+        tmp = []
+        for i in range(4):
+            tmp.append(random.randint(0, 5))  #0=rouge, 1=vert, 2=bleu, 3=jaune, 4=orange, 5=marron
+
+        return tmp
+
+    def checkCombination(self, combination):
+        colors = [0, 0, 0, 0, 0, 0]
+        for i in range(4):
+            colors[self.combination[i]] += 1
+
+        correct = 0
+        for i in range(4):
+            if(colors[combination[i]]!=0):
+                correct += 1
+                colors[combination[i]] -= 1
+
+
+        a = 0
+        for i in range(4):
+            if(self.combination[i] == combination[i]):
+                a += 1
+
+        b = correct - a
+
+        self.nbFeedbacks += 1
+
+        return (a, b)
+```
+
+### Joueur (agent logique)
+
+Pour créer l'agent logique qui joue au jeu, il faut déjà définir ce que serait une base de connaissances. Dans le cas présent, une base de connaissance pourraît être une liste de tuples qui contiennent une combinaison testée et le feedback qu'il en a résulté.
+
+Ainsi la base de connaissance grandit au fur et à mesure que le créateur renvoie des feedbacks.
+
+Le mécanisme que j'ai choisi d'implémenter va premièrement lister toutes les possiblités. Puis dans une boucle, à chaque itération, on prend une combinaison de la liste des possiblités et on la teste auprès du créateur. 
+
+Puis on filtre la liste des possiblités avec la nouvelle base de connaissances : on compare toutes les possiblités à tous les feedbacks contenus dans la base de connaissance. Si une possibilité n'est pas "compatible" avec tous les feedbacks, on la supprime de la liste des possiblités.
+
+Ainsi, après un nombre assez faible d'itérations, il ne reste plus qu'une seule possiblité qui est la solution.
+
+Cette approche utilise donc l'inférence du **chaînage avant**.
+
+**REMARQUE: Comme la liste des possiblités est filtré à chaque itération, il n'est pas nécéssaire de refiltrer la liste des possiblités avec TOUTE la base de connaissance. En effet, on peut simplement refiltrer la liste des possiblités avec le dernier feedback reçu.**
+
+**C'est donc cette optimisation que j'ai implémenté dans mon programme. Ainsi dans mon code, je stocke uniquement le dernier feedback, et non la base de connaissances.**
+
+Voici le code complet de l'agent logique :
+
+```python
+class Player: 
+    def __init__(self, createur):
+        self.lastFeedback = []
+        self.possibilities = self.createAllCombinations()
+        self.createur = createur
+        self.verbose = True
+
+    def createAllCombinations(self):
+        tmp = []
+        for i in range(6):
+            for j in range(6):
+                for k in range(6):
+                    for l in range(6):
+                        tmp.append([i, j, k, l])
+        return tmp
+
+    def filterKnowledgeBase(self):
+        for i in reversed(range(len(self.possibilities))):
+            if(not self.couldMatch(self.lastFeedback, self.possibilities[i])):
+                self.possibilities.pop(i)
+
+    def couldMatch(self, sentence, guess):
+
+        knowledgeCombination = sentence[0]
+        knowledgeFeedback = sentence[1]
+
+
+        colors = [0, 0, 0, 0, 0, 0]
+        for i in range(4):
+            colors[knowledgeCombination[i]] += 1
+
+        correct = 0
+        for i in range(4):
+            if(colors[guess[i]]!=0):
+                correct += 1
+                colors[guess[i]] -= 1
+
+
+        a = 0
+        for i in range(4):
+            if(correct != 0 and knowledgeCombination[i] == guess[i]):
+                a += 1
+
+        b = correct - a            
+
+        return (a == knowledgeFeedback[0] and b == knowledgeFeedback[1])
+
+    def play(self):
+
+        comb = None
+        i=1
+
+        while(len(self.possibilities) > 0):
+
+            comb = self.possibilities.pop()
+            result = self.createur.checkCombination(comb)
+
+            self.lastFeedback = [comb, result]
+            self.filterKnowledgeBase()
+
+            if(self.verbose):
+                print("Tour de jeu", str(i), "il reste", str(len(self.possibilities) + 1), "possibilités.")
+            i+=1
+
+        return comb
+```
+
+### Utilisation
+
+Pour lancer le programme :
+
+```bash
+cd Labo2/PartieB
+python main.py
+```
+
+**Note : une fonction de test "testAlgorithm" est également disponible dans le fichier "main.py".**
